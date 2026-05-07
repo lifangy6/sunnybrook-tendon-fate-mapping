@@ -1,0 +1,5 @@
+# Reference PDFs (copyrighted journal articles)
+docs/papers/*.pdf
+
+# Seminar slide screenshots (copyrighted)
+docs/seminar/*.png
