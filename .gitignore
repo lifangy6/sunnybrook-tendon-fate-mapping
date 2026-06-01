@@ -1,3 +1,18 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Claude Code config
+.claude/
+skills-lock.json
+
+# Node / npm
+node_modules/
+package-lock.json
+
+# Windows system files
+desktop.ini
+
 # Reference PDFs (copyrighted journal articles)
 docs/papers/*.pdf
 
