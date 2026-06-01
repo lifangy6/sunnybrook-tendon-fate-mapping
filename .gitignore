@@ -18,3 +18,7 @@ docs/papers/*.pdf
 
 # Seminar slide screenshots (copyrighted)
 docs/seminar/*.png
+
+# Miscellaneous folder
+misc/
+
