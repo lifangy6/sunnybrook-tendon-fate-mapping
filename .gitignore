@@ -22,3 +22,5 @@ docs/seminar/*.png
 # Miscellaneous folder
 misc/
 
+# Draft markdown files
+docs/md/
