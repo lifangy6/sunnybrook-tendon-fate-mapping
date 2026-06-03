@@ -24,3 +24,13 @@ misc/
 
 # Draft markdown files
 docs/md/
+
+# Cherief scRNA-seq large data
+data/Cherief_scRNA-seq/GSM7832064_Control/
+data/Cherief_scRNA-seq/GSM7832065_INMPP1
+data/Cherief_scRNA-seq/*.h5ad
+data/Cherief_scRNA-seq/*.tar
+
+# Harvey scRNA-seq large data
+data/Harvey_scRNA-seq/10x
+data/Harvey_scRNA-seq/*.h5ad
