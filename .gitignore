@@ -24,6 +24,7 @@ misc/
 
 # Draft markdown files
 docs/md/
+*.docx
 
 # Cherief scRNA-seq large data
 data/Cherief_scRNA-seq/GSM7832064_Control/
