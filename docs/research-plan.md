@@ -2,8 +2,6 @@
 
 ## A Mechanism-Informed Gene Signature for Regenerative vs. Fibrotic Tendon Healing
 
-**Last updated:** 2026-05-28
-
 ---
 
 ## 1. Scientific Background
@@ -32,7 +30,6 @@ The two questions are linked: the TF regulons from the mechanistic analysis serv
 ## 3. Datasets
 
 ### Primary — Cherief et al. (2023)
-**Status: Downloaded and processed ✓**
 
 | Field | Detail |
 |---|---|
@@ -45,23 +42,12 @@ The two questions are linked: the TF regulons from the mechanistic analysis serv
 | Cells after QC | 22,615 |
 | Figures | `figures/Cherief_scRNA-seq/` |
 
-**What we found so far:**
-- 8 Leiden clusters at resolution=0.5
-- Cluster 8 is the PDGFRα+ stromal population — contains Tppp3+ TSPCs and T-FAPs mixed together
-- No clean TSPC/T-FAP split at current resolution — higher-resolution sub-clustering of cluster 8 needed
-- Tenocytes in a separate cluster (Scx+, Tnmd+); macrophage subtypes dominate clusters 0, 1, 2, 13
-- Clear condition separation between innervated and denervated cells
-
-**What's still needed:**
-- Higher-resolution sub-clustering of cluster 8 to isolate TSPC vs. T-FAP
-- pySCENIC (TF network inference)
-- CellRank (fate trajectory)
-- LIANA (cell-cell communication, innervated vs. denervated)
+**Why this dataset is central:**
+Cherief 2023 provides the innervation/denervation contrast that anchors the mechanistic and applied arms. The PDGFRα+ stromal cluster (cluster 8, sub-clustered into TSPC/T-FAP/Tenogenic-progenitor/Stromal) is the focal population for pySCENIC, CellRank, and LIANA analyses. The innervated vs. denervated split serves as the held-out test set for the classifier.
 
 ---
 
 ### Secondary — Harvey et al. (2019)
-**Status: Blocked — count matrix not yet obtained**
 
 | Field | Detail |
 |---|---|
@@ -69,19 +55,14 @@ The two questions are linked: the TF regulons from the mechanistic analysis serv
 | DOI | [10.1038/s41556-019-0417-z](https://doi.org/10.1038/s41556-019-0417-z) |
 | SRA accession | PRJNA506218 / SRR9087252 (raw FASTQs, 23.2 GB) |
 | Tissue | Mouse patellar tendon (uninjured adult) |
-| Cells | ~2,491 |
-| Count matrix | Not deposited — must be generated from raw FASTQs via Cell Ranger |
+| Processed file | `data/Harvey_scRNA-seq/harvey2019_processed.h5ad` |
+| Cells after QC | 4,069 |
+| Figures | `figures/Harvey_scRNA-seq/` |
 
 **Why this dataset is essential:**
 Harvey 2019 is the paper that defined and named TSPCs and T-FAPs. Its clusters are the ground-truth labels for:
 - Seeding TF inference with confirmed TSPC/T-FAP identities (mechanistic arm)
 - Training the TSPC/T-FAP classifier (applied arm)
-
-Without the count matrix, both arms of the project rely solely on Cherief 2023's sub-clustered cluster 8 for population labels — which is indirect.
-
-**What's needed to unblock:**
-- Download SRR9087252 FASTQs
-- Run Cell Ranger (requires Linux/WSL2, ~32–64 GB RAM, ~100 GB storage, ~4–8 hours compute)
 
 ---
 
@@ -134,25 +115,25 @@ The pipeline is ordered by dependency. Each stage feeds the next.
 Re-run Leiden at higher resolution (0.8–1.2) restricted to cluster 8 cells. Confirm TSPC sub-cluster by Tppp3 expression; confirm T-FAP sub-cluster by Pdgfra+/Tppp3− co-expression. This is the foundation — if the two populations cannot be cleanly separated, the project scope must be reconsidered.
 
 **Stage 2 — Harvey 2019 Cell Ranger**
-One-time compute job on Linux/WSL2. Produces count matrix for the only dataset with explicitly validated TSPC/T-FAP cluster annotations. Unblocks all downstream steps in both arms.
+One-time compute job on HPC. Produces count matrix for the only dataset with explicitly validated TSPC/T-FAP cluster annotations. Unblocks all downstream steps in both arms.
 
 **Stage 3A — pySCENIC TF inference**
-Run on TSPC and T-FAP sub-clusters from Cherief 2023 (and Harvey 2019 once available). Requires ≥300–500 cells per population for reliable regulon scoring. Output: ranked TF regulons specific to each fate.
+Run on TSPC and T-FAP sub-clusters from both Harvey 2019 and Cherief 2023. GRNBoost2 → cisTarget → AUCell pipeline on Alliance Canada HPC. Cross-dataset direction filter to identify TF regulons with consistent TSPC or T-FAP enrichment in both datasets independently.
 
 **Stage 3B — Label transfer**
 Use Seurat/scVI to transfer Harvey 2019 TSPC/T-FAP labels onto Cherief 2023 cluster 8 sub-clusters. Provides a secondary confirmation of sub-cluster identities beyond marker expression alone.
 
 **Stage 4 — CellRank trajectory**
-Model pseudotime from a shared PDGFRα+ progenitor state toward TSPC and T-FAP terminal states. Identify driver genes along each branch. Cross-reference with pySCENIC regulons to find TFs active at the fate branch point.
+Model pseudotime from the shared PDGFRα+ progenitor pool toward TSPC and T-FAP terminal states. Use PseudotimeKernel (DPT) since GEO deposit has no spliced/unspliced counts. Compute fate probabilities per cell and lineage driver genes correlated with each fate. Cross-reference drivers with pySCENIC regulon target genes to produce a mechanism-informed candidate feature set.
 
 **Stage 5 — LIANA cell-cell communication**
-Compare ligand-receptor interactions between stromal cluster 8 and all other cell types in innervated vs. denervated conditions. Focus on NGF (from neurons/macrophages), TGFβ (from immune cells), and PDGF (from vasculature). These are the candidate upstream signals that shift the TSPC/T-FAP balance.
+Run `rank_aggregate` (6 methods, mouse consensus LR database) on innervated and denervated subsets separately. Differential metric: `delta_rank = rank_denervated − rank_innervated`. Identifies which ligand-receptor signals arriving at TSPC and T-FAP differ between conditions, linking upstream niche signals to the fate decision.
 
 **Stage 6 — Mechanistic summary**
 Synthesize stages 3–5 into a regulatory circuit: which TFs govern each fate, which upstream signals activate them, and how denervation disrupts the balance toward fibrosis.
 
 **Stage 7 — Feature selection**
-Use the pySCENIC regulon gene sets + CellRank branch driver genes as the candidate feature space (not all ~15,000 genes). Apply LASSO, Boruta, and XGBoost independently; take the intersection of genes selected by ≥2 methods. Reduces multiple-testing burden and keeps the classifier biologically grounded.
+Use the pySCENIC × CellRank overlap genes plus TSPC marker genes as the candidate feature space. Apply LASSO, Boruta, and XGBoost independently on the Harvey 2019 TSPC/T-FAP clusters; take the intersection of genes selected by ≥2 methods. Reduces multiple-testing burden and keeps the classifier biologically grounded.
 
 **Stage 8 — Classifier validation**
 Train on Harvey 2019 TSPC/T-FAP clusters (held out from Stage 7 feature selection). Validate generalization on Cherief 2023 innervated vs. denervated — denervation is known to shift healing toward fibrosis, so a well-calibrated classifier should shift toward the fibrotic end of the score distribution in denervated samples.
@@ -168,32 +149,13 @@ Convert the binary classifier into a continuous score using predicted class prob
 |---|---|---|
 | Cluster 8 sub-clustering fails to cleanly separate TSPC/T-FAP | High | Try multiple resolutions (0.8–1.5) + harmony integration; fall back to marker-based gating if needed |
 | Harvey 2019 Cell Ranger produces low-quality matrix | High | Use STARsolo as alternative aligner; contact Harvey lab directly for count matrix |
-| pySCENIC regulons dominated by generic stress TFs (Jun, Fos) | Medium | Filter regulons by TSPC/T-FAP specificity score; cross-reference with published TF databases |
+| pySCENIC regulons dominated by generic stress TFs (Jun, Fos) | Medium | Apply cross-dataset direction filter; require consistent enrichment in both Harvey and Cherief independently |
 | Classifier overfits to Harvey 2019 patellar tendon context | Medium | Strict train/test split; Cherief 2023 (Achilles, different injury model) as held-out test |
 | TSPC/T-FAP sub-clusters too small for pySCENIC | Medium | Supplement with Harvey 2019 cells after Cell Ranger; pool timepoints if needed |
 
 ---
 
-## 6. Task Status
-
-| Task | Status |
-|---|---|
-| Define project scope | Done ✓ |
-| Process Cherief 2023 (QC, clustering, annotation) | Done ✓ |
-| Explore Harvey 2019 analysis scripts | Done ✓ |
-| Sub-cluster cluster 8 in Cherief 2023 | **Next step** |
-| Download and run Cell Ranger on Harvey 2019 FASTQs | Blocked (needs Linux/WSL2) |
-| Label transfer Harvey 2019 → Cherief 2023 | Not started |
-| pySCENIC — TF network inference | Not started |
-| CellRank — fate trajectory | Not started |
-| LIANA — cell-cell communication | Not started |
-| Feature selection (LASSO + Boruta + XGBoost) | Not started |
-| Classifier training and validation | Not started |
-| Healing index score | Not started |
-
----
-
-## 7. Key Papers
+## 6. Key Papers
 
 | Paper | Role in project |
 |---|---|
