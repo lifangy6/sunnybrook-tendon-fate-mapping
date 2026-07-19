@@ -1,0 +1,22 @@
+direction,signal,receptor_gene,regulated_by_TFAP_TF
+stronger_innervated,Efna1->Epha3,Epha3,
+stronger_innervated,Sema4a->Plxnd1,Plxnd1,
+stronger_innervated,Bmp3->Bmpr1b,Bmpr1b,
+stronger_innervated,Sema3d->Nrp/Plxna,Nrp1,Egr1
+stronger_innervated,Sema3d->Nrp/Plxna,Nrp2,"Egr1, Klf9"
+stronger_innervated,Sema3d->Nrp/Plxna,Plxna2,Prdm16
+stronger_innervated,Wnt5a->Fzd4,Fzd4,Irf1
+stronger_innervated,Sema3c->Nrp2_Plxna1 (at TSPC),Nrp2,"Egr1, Klf9"
+stronger_innervated,Sema3c->Nrp2_Plxna1 (at TSPC),Plxna1,
+stronger_innervated,Pdgfc->Pdgfra,Pdgfra,"Egr1, Irf1, Jund, Fosb, Fos, Klf9"
+stronger_innervated,Tgfb1/3->Itgb3,Itgb3,
+stronger_innervated,Bdnf/Ngf->Erbb2,Erbb2,
+stronger_denervated,Sema3f->Nrp2_Plxna1,Nrp2,"Egr1, Klf9"
+stronger_denervated,Sema3f->Nrp2_Plxna1,Plxna1,
+stronger_denervated,Tnf->Notch1,Notch1,
+stronger_denervated,Sema3c->Nrp1_Nrp2_Plxnd1 (at T-FAP),Nrp1,Egr1
+stronger_denervated,Sema3c->Nrp1_Nrp2_Plxnd1 (at T-FAP),Nrp2,"Egr1, Klf9"
+stronger_denervated,Sema3c->Nrp1_Nrp2_Plxnd1 (at T-FAP),Plxnd1,
+stronger_denervated,Rtn4->Rtn4rl1,Rtn4rl1,
+stronger_denervated,Lama4/Lamb1->Itga9_Itgb1,Itga9,
+stronger_denervated,Lama4/Lamb1->Itga9_Itgb1,Itgb1,

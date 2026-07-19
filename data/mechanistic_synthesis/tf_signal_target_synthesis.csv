@@ -1,0 +1,16 @@
+TF,family,upstream_signal_family,harvey_score,cherief_score,n_union_targets,n_cross_dataset_targets,n_cellrank_drivers,top_cellrank_drivers,receptor_feedback_targets
+Junb,AP-1,TGFb / PDGF -> MEK-ERK,17.3658,27.267511,413,30,35,"Gdf10, Angptl4, Il6",
+Jund,AP-1,TGFb / PDGF -> MEK-ERK,18.148964,28.431025,228,2,31,"Selenop, Serpina3n, Cst3",Pdgfra
+Klf9,KLF,Mechanotransduction / TGFb,9.250983,24.289484,551,17,28,"Gdf10, Icam1, Nfib","Nrp2, Pdgfra"
+Nfkb1,NF-kB/Inflammatory,TNF / IL-1 / Macrophage-Notch,15.078421,21.23526,469,38,20,"Ptx3, Cebpb, Fosb",
+Atf3,AP-1,TGFb / PDGF -> MEK-ERK,11.003265,25.695847,324,6,16,"Junb, Cebpd, Fosb",
+Klf6,KLF,Mechanotransduction / TGFb,4.9435797,18.595524,373,3,14,"Slc16a1, Zfp36l1, Socs3",
+Egr1,NF-kB/Inflammatory,TNF / IL-1 / Macrophage-Notch,20.603586,25.893581,903,21,14,"Steap4, Id2, Pltp","Nrp1, Nrp2, Pdgfra"
+Fosb,AP-1,TGFb / PDGF -> MEK-ERK,17.838593,26.718578,603,10,12,"Sfrp1, Emb, Sgk1",Pdgfra
+Jun,AP-1,TGFb / PDGF -> MEK-ERK,16.775726,26.297634,49,1,8,"Cxcl12, Slc1a3, Sfrp2",
+Cebpd,NF-kB/Inflammatory,TNF / IL-1 / Macrophage-Notch,20.779316,29.314266,30,0,7,"Lpl, Id3, Cebpb",
+Fos,AP-1,TGFb / PDGF -> MEK-ERK,14.255134,17.516514,99,1,5,"Zfp36, Gadd45g, Jun",Pdgfra
+Irf1,NF-kB/Inflammatory,TNF / IL-1 / Macrophage-Notch,20.546682,20.834347,593,6,3,"Zfp36l1, Zfp36, Jun","Fzd4, Pdgfra"
+Pbx1,Other,Unresolved,7.8167896,12.386636,36,0,0,,
+Zfp369,Other,Unresolved,5.4345045,4.955148,60,0,0,,
+Prdm16,Other,Unresolved,2.3300102,8.221865,32,0,0,,Plxna2
