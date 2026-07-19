@@ -1,7 +1,7 @@
 # Project Progress
 
 **Project:** A Mechanism-Informed Gene Signature for Regenerative vs. Fibrotic Tendon Healing  
-**Last updated:** 2026-06-29
+**Last updated:** 2026-07-18
 
 ---
 
@@ -19,8 +19,8 @@
 | 3b | Label transfer Harvey 2019 → Cherief 2023 cluster 8 | On hold |
 | 4 | CellRank — fate trajectory from PDGFRα+ progenitor | Done ✓ (pseudotime caveat) |
 | 5 | LIANA — cell-cell communication (innervated vs. denervated) | Done ✓ |
-| 6 | Mechanistic summary (TF regulons + upstream signals) | Not started ← next |
-| 7 | Feature selection (LASSO + Boruta + XGBoost) | Not started |
+| 6 | Mechanistic summary (TF regulons + upstream signals) | Done ✓ |
+| 7 | Feature selection (LASSO + Boruta + XGBoost) | Not started ← next |
 | 8 | Classifier training & validation | Not started |
 | 9 | Continuous healing index score | Not started |
 
@@ -105,6 +105,10 @@ These form a coherent **pro-fibrotic / activated-fibroblast** program. TSPC-spec
 
 **Implication for classifier:** T-FAP regulon AUC scores as positive fibrotic features; TSPC identified by expression markers (Tppp3, Prg4) since consistent TF regulons are absent.
 
+**Robustness check (2026-07-18):** an independent audit raised the concern that "0 consistent TSPC regulons" could be a statistical power artifact — TSPC has far fewer cells than T-FAP in both datasets (Harvey 266 vs. 433; Cherief 451 vs. 1245), and the original cross-dataset filter ranked by raw Wilcoxon score (`head(50)`), which scales with n. This was tested directly in `scripts/ipynb/04b_pyscenic_powermatched_filter.ipynb`: a stability-selection re-analysis (200 iterations of downsampling T-FAP to TSPC's n per dataset, BH-corrected each time, selection frequency ≥0.95 in both datasets required) **reproduces the original result** — 14/15 T-FAP regulons replicate (Prdm16 drops, Zfx enters, both borderline) and TSPC still returns zero. The three candidate TSPC regulons flagged by the audit (Cux1, Klf3, Mxd4) fail in Harvey for reasons other than power: Cux1/Mxd4 aren't detected as regulons in Harvey at all (cisTarget found no motif-supported target set), and Klf3 is genuinely null in Harvey even at matched sample size (selection_freq=0.05). **Conclusion: the 0-TSPC-regulon result is not a sample-size artifact** — power-matching does not change it. This does not rule out a real-but-small TSPC TF effect that both datasets are jointly too small to detect (no more Harvey/Cherief TSPC cells exist to add) — that remains an honest limitation, not a re-opened question.
+
+**Does the Prdm16→Zfx swap affect Stage 7?** No — checked directly. Zfx has only 15 Cherief target genes, none of which overlap the top-200 CellRank T-FAP lineage drivers, so it would contribute zero genes to the Stage 7 candidate list either way (matching Prdm16, which also contributed zero). The 119-gene candidate list built from the original v1 TF list is unaffected by this swap.
+
 ---
 
 ## Stage 3B — Label Transfer (On Hold)
@@ -122,16 +126,27 @@ These form a coherent **pro-fibrotic / activated-fibroblast** program. TSPC-spec
 
 **Approach:** CellRank 2 PseudotimeKernel (DPT, no RNA velocity — Cherief GEO deposit has no spliced/unspliced counts). Root = Stromal sub-cluster (min DC1). GPCCA with n_states=5 recovered all four cell types as distinct macrostates.
 
-**Caveat — pseudotime ordering:** DPT ranked Tenogenic-progenitor as most progenitor-like (mean DPT 0.18) rather than Stromal (0.29), which is biologically incorrect: Stromal has the imprinted gene signature (Plagl1, Mest, H19) marking undifferentiated state. The DPT is rooted at Stromal but diffusion components place Tenogenic-progenitor cells close to the root in PC space. This makes trajectory ordering unreliable; fate probabilities are still interpretable as a soft classification rather than a mechanistic trajectory.
+**Caveat — pseudotime ordering:** DPT ranked Tenogenic-progenitor as most progenitor-like (mean DPT 0.18) rather than Stromal (0.29), which is biologically incorrect: Stromal has the imprinted gene signature (Plagl1, Mest, H19) marking undifferentiated state. The DPT is rooted at Stromal but diffusion components place Tenogenic-progenitor cells close to the root in PC space. This makes trajectory ordering unreliable.
 
-**Fate probabilities by condition:**
+**Root-sensitivity check (2026-07-18):** an audit questioned whether the fate probabilities inherit the same distortion as the ordering, since both come from the same pseudotime-kernel transition matrix. `scripts/ipynb/05b_cellrank_root_sensitivity.ipynb` reran the identical pipeline rooted at a Tenogenic-progenitor cell instead of Stromal (i.e. the root DPT's own ranking would pick) and compared fate probabilities:
+
+| | TSPC (innerv.) | T-FAP (innerv.) | TSPC (denerv.) | T-FAP (denerv.) | Shift, innerv.→denerv. |
+|---|---|---|---|---|---|
+| Original (Stromal root) | 82.6% | 17.2% | 71.0% | 28.9% | TSPC −11.6pp / T-FAP +11.7pp |
+| Alternate (Tenogenic-progenitor root) | 76.7% | 23.2% | 64.1% | 35.9% | TSPC −12.6pp / T-FAP +12.7pp |
+
+**Two separable results:** (1) the audit's concern was partly correct — absolute fate probabilities are **not** root-invariant; T-FAP's baseline is ~5–7 points higher under the alternate root. The exact figures below should be read as root-dependent point estimates, not precise ground truth. (2) the **directional finding is robust** — both roots agree closely on the size and direction of the innervated→denervated shift (~12 percentage points toward T-FAP either way). Treat the shift as the trustworthy result; treat the absolute baseline split as approximate.
+
+**Fate probabilities by condition (original root; see root-sensitivity note above for range):**
 
 | Condition | TSPC | T-FAP (total) |
 |---|---|---|
-| Innervated (TrkAWT) | 0.826 | 0.172 |
-| Denervated (TrkAF592A) | 0.710 | 0.289 |
+| Innervated (TrkAWT) | 0.826 (range 0.77–0.83 across root choices) | 0.172 (range 0.17–0.23) |
+| Denervated (TrkAF592A) | 0.710 (range 0.64–0.71) | 0.289 (range 0.29–0.36) |
 
-Direction is consistent with LIANA: denervation shifts progenitor fate allocation toward T-FAP.
+Direction is consistent with LIANA: denervation shifts progenitor fate allocation toward T-FAP — now confirmed robust to root choice, not just an artifact of one specific (contested) root.
+
+**The check that actually matters for Stage 7 (2026-07-18):** the sensitivity check above tests fate-probability *percentages*, which Stage 7 doesn't use. Stage 7 uses the **119-gene candidate list** (`data/cellrank/pyscenic_cellrank_tfap_overlap.csv`), built from CellRank *lineage driver genes* intersected with pySCENIC targets — a different computation. `05b_cellrank_root_sensitivity.ipynb` §5 reran that specific pipeline under the alternate root: **112 of the 119 candidate genes (94%) are unchanged, Jaccard similarity 0.89.** The gene list Stage 7 will actually consume is substantially more robust to the pseudotime-root problem than the population-level statistics are — good news, and confirmed rather than assumed.
 
 **Top lineage driver genes:**
 
@@ -155,6 +170,8 @@ T-FAP_2 drivers (Sfrp1/2, C3, Hif1a) overlap strongly with the complement/hypoxi
 `rank_aggregate` (6 methods — CellPhoneDB, Connectome, log2FC, NATMI, SingleCellSignalR, CellChat; mouse consensus LR database) run separately on innervated (11,478 cells) and denervated (8,569 cells) subsets of the full annotated dataset. Differential metric: **`delta_rank = rank_denervated − rank_innervated`** (positive = stronger in innervated; negative = stronger in denervated).
 
 52,646 LR pairs detected in both conditions; 11,669 with TSPC or T-FAP as receiver.
+
+**⚠ Permutation-testing correction (2026-07-18):** the original run set `n_perms=None`, so everything below was originally selected by `delta_rank` alone — a difference of two rank-aggregate scores, not a significance-tested statistic. `scripts/ipynb/06b_liana_permutation_v2.ipynb` reran the identical pipeline with `n_perms=100`, activating real CellPhoneDB-style permutation p-values. Checking the 7 named headline pairs below against their permutation p-value **in the condition where they're claimed to be strong**: only 3 of 7 are actually significant (Bmp3→Bmpr1b p=0.0, Pdgfc→Pdgfra p=0.0, Tnf→Notch1 p=0.0). The other 4 — including **Efna1→Epha3, previously described as "the strongest differential signal overall"** — have p=1.0, i.e. statistically indistinguishable from random cell-label shuffling: Efna1→Epha3, Sema4a→Plxnd1, Wnt5a→Fzd4, and Sema3f→Nrp2_Plxna1 are **not supported** once tested. More broadly, of the top-20 pairs by `delta_rank` in each direction, only 8/20 (innervated) and 12/20 (denervated) clear `cellphone_pvals < 0.05`. Read the tables below as the original `delta_rank`-ranked record; treat only Bmp3→Bmpr1b, Pdgfc→Pdgfra, and Tnf→Notch1 as statistically supported single-pair claims going forward, and do not repeat the "Efna1→Epha3 is the strongest signal" framing on the poster/report.
 
 ![Differential LR interactions at TSPC/T-FAP](../figures/liana/barplot_differential_stromal.png)
 
@@ -190,24 +207,38 @@ Bubble plots below confirm the overall pattern: innervated niche signals are enr
 
 ---
 
-## Stage 6 — Mechanistic Synthesis ← Next
+## Stage 6 — Mechanistic Synthesis ✓
 
 **Goal:** Integrate pySCENIC TF regulons (Stage 3A), CellRank fate drivers (Stage 4), and LIANA upstream signals (Stage 5) into a single regulatory circuit explaining the TSPC vs. T-FAP fate decision.
+**Script:** `scripts/ipynb/07_mechanistic_synthesis.ipynb`
 
-Draft circuit:
+Circuit:
 - **Innervated → TSPC fate:** PDGF-C/Wnt5a/BMP3 niche signals (LIANA) → progenitor pool biased toward TSPC (CellRank: 82.6% TSPC fate probability) → suppression of AP-1/KLF/NF-κB TF program → Tppp3+/Igfbp6+/Sema3c+ TSPC maintenance
 - **Denervated → T-FAP fate:** Loss of PDGF-C/Wnt5a; TNF → NF-κB (Nfkb1) + Macrophage-Notch suppresses TSPC; laminin-integrin (Lama4/Lamb1 → Itga9/Itgb1) + TGFβ → AP-1/ATF3/KLF activation (Klf6/Klf9/Cebpd/Irf1/Egr1 regulons) → T-FAP program (CellRank: T-FAP fate rises from 17% to 29%); T-FAP drivers Sfrp1/2 (Wnt antagonists), Hif1a (hypoxia), Il6 (JAK-STAT), C3 (complement) reinforce fibrotic identity
+
+![Regulatory circuit — signal family → TF regulon → fate program](../figures/mechanistic_synthesis/regulatory_circuit.png)
+*(Note: the orange dashed "Pdgfra feedback" edges in this figure represent the receptor-feedback claim below, which was later statistically tested and retracted — kept here as the original record.)*
+
+**Corrected version for poster/report use (2026-07-18):** regenerated in `scripts/ipynb/07b_receptor_feedback_v2_tested.ipynb` §6 with the retracted Pdgfra feedback edges removed; everything else (family grouping, CellRank-driver-count edges to the fate program) is unchanged.
+
+![Regulatory circuit, corrected — Pdgfra feedback edges removed](../figures/mechanistic_synthesis/regulatory_circuit_v2_corrected.png)
+
+**Which regulons actually anchor the CellRank fate program:** re-aggregating the 119-gene pySCENIC × CellRank overlap by TF shows Junb (35 genes) and Jund (31 genes) contribute more than double any other regulon, followed by Klf9 (28). The three "Other" TFs (Pbx1, Prdm16, Zfp369) are differentially active in both datasets but contribute **zero** CellRank fate-driver genes — markers of T-FAP transcriptional state, not drivers of fate commitment, and deprioritised for Stage 7.
+
+![CellRank T-FAP driver-gene count per TF regulon](../figures/mechanistic_synthesis/tf_cellrank_driver_counts.png)
+
+**Receptor feedback claim — retracted after statistical testing (2026-07-18):** the original notebook reported that several T-FAP regulons target the receptor genes for headline LIANA signals (e.g. 6 regulons targeting `Pdgfra`), framed as a candidate feedback mechanism. That was a raw overlap count with no significance test. `scripts/ipynb/07b_receptor_feedback_v2_tested.ipynb` tests it properly: a hypergeometric enrichment test run separately per dataset (correct background gene universe per dataset, per-dataset target sets rather than the union, which had inflated the apparent overlap by pooling both datasets together), Fisher-combined, BH-corrected across the 15 TFs. **Nothing survives — not even at raw uncorrected p<0.05** (best case: Fos, combined p≈0.056). This finding is retracted, not just caveated: the T-FAP TF program's overlap with LIANA receptor genes is statistically indistinguishable from chance. (The GRNBoost2 target-gene lists this check depends on were also generated by a single unseeded run — see Stage 3A robustness note — so even if the overlap had been significant, the specific target list wouldn't be guaranteed to reproduce.)
 
 Additional threads from Stage 4:
 - **Sema3c** is both a LIANA innervated signal (attractive semaphorin lost upon denervation) and a CellRank TSPC lineage driver — strongest cross-stage convergence point for TSPC maintenance
 - **Sfrp1/2** appear as T-FAP_2 CellRank drivers and Fosb/Jun targets — Wnt antagonism as a T-FAP self-reinforcing mechanism
-- **119-gene pySCENIC × CellRank overlap** (dominated by Junb/Jund/Klf9/Klf6 targets) represents the mechanism-informed candidate feature set for Stage 7
+- **119-gene pySCENIC × CellRank overlap** (dominated by Junb/Jund/Klf9 targets) represents the mechanism-informed candidate feature set for Stage 7
 
-Signal-to-TF links are literature-bridged (TNF → NF-κB; TGFβ → AP-1/ATF3; PDGF → MEK/ERK → AP-1) — can be strengthened by querying GRNBoost2 adjacency tables from Stage 3A.
+**Caveat:** signal-to-TF-*family* links (TNF → NF-κB; TGFβ → AP-1/ATF3; PDGF → MEK/ERK → AP-1) remain literature-bridged, not directly tested — the raw GRNBoost2 adjacency tables needed to test this quantitatively exist only on HPC scratch (`pyscenic_03_grn.sh` output) and were not pulled into this repo. Cross-dataset target-*gene* identity is also much less consistent than target-*TF* activity (e.g. Cebpd/Pbx1/Zfp369/Prdm16 share 0 target genes between Harvey and Cherief despite consistent regulon activity) — individual TF→target edges above should be read as dataset-specific hypotheses, not confirmed circuitry.
 
 ---
 
-## Stage 7 — Feature Selection (Not Started)
+## Stage 7 — Feature Selection (Not Started) ← Next
 
 Candidate feature space (ready): **119 genes** from the pySCENIC × CellRank T-FAP overlap (`data/cellrank/pyscenic_cellrank_tfap_overlap.csv`) plus TSPC marker genes (Tppp3, Prg4, Igfbp6, Sema3c, Cd34). Apply LASSO, Boruta, and XGBoost independently on Harvey 2019 TSPC/T-FAP clusters; take the intersection of genes selected by ≥2 methods. Target: minimal panel of ~10–30 genes.
 
@@ -243,12 +274,15 @@ Convert binary classifier to a continuous score using predicted class probabilit
 | `data/cellrank/lineage_drivers_T-FAP_1.csv` | CellRank T-FAP_1 lineage drivers (7,223 significant genes) |
 | `data/cellrank/lineage_drivers_T-FAP_2.csv` | CellRank T-FAP_2 lineage drivers (4,449 significant genes) |
 | `data/Cherief_scRNA-seq/GSE244921_cluster8_cellrank.h5ad` | Cluster 8 AnnData with fate probabilities added (from CellRank) |
+| `data/mechanistic_synthesis/tf_signal_target_synthesis.csv` | Stage 6 — per-TF synthesis table (target counts, CellRank drivers, receptor feedback targets) |
+| `data/mechanistic_synthesis/liana_receptor_tf_feedback.csv` | Stage 6 — headline LIANA receptor genes cross-referenced against T-FAP regulon targets |
 | `scripts/ipynb/01_cherief2023_qc_clustering.ipynb` | Cherief 2023 — QC, clustering, annotation |
 | `scripts/ipynb/02_cherief2023_subcluster_tspc_tfap.ipynb` | Cluster 8 sub-clustering → TSPC/T-FAP |
 | `scripts/ipynb/03_harvey2019_qc_clustering.ipynb` | Harvey 2019 — QC, clustering, marker annotation |
 | `scripts/ipynb/04_pyscenic_analysis.ipynb` | pySCENIC AUCell analysis — UMAP, differential regulons, cross-dataset comparison |
 | `scripts/ipynb/05_cellrank_fate_trajectory.ipynb` | CellRank fate trajectory — DPT, macrostates, fate probabilities, lineage drivers |
 | `scripts/ipynb/06_liana_cellcell_communication.ipynb` | LIANA CCC — annotation, rank_aggregate, differential, visualisation |
+| `scripts/ipynb/07_mechanistic_synthesis.ipynb` | Stage 6 — TF regulon × CellRank driver × LIANA receptor cross-referencing, regulatory circuit diagram |
 | `scripts/sh/pyscenic_00_setup.sh` | HPC environment setup (patched pySCENIC 0.12.0) |
 | `scripts/sh/pyscenic_03_grn.sh` | SLURM: GRNBoost2 TF-gene co-expression |
 | `scripts/sh/pyscenic_04_ctx.sh` | SLURM: cisTarget motif pruning |
@@ -258,5 +292,6 @@ Convert binary classifier to a continuous score using predicted class probabilit
 | `figures/Harvey_scRNA-seq/` | Harvey 2019 QC and clustering figures |
 | `figures/pyscenic/` | pySCENIC regulon UMAP and heatmap figures |
 | `figures/liana/` | LIANA differential and bubble plot figures |
+| `figures/mechanistic_synthesis/` | Stage 6 — regulatory circuit diagram, TF × CellRank driver bar chart |
 | `figures/pipeline_flowchart.png` | Full analysis pipeline diagram |
 | `docs/research-plan.md` | Detailed scientific rationale and pipeline |
