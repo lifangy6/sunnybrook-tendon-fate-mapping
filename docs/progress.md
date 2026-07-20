@@ -1,7 +1,7 @@
 # Project Progress
 
 **Project:** A Mechanism-Informed Gene Signature for Regenerative vs. Fibrotic Tendon Healing  
-**Last updated:** 2026-07-18
+**Last updated:** 2026-07-20
 
 ---
 
@@ -20,9 +20,9 @@
 | 4 | CellRank — fate trajectory from PDGFRα+ progenitor | Done ✓ (pseudotime caveat) |
 | 5 | LIANA — cell-cell communication (innervated vs. denervated) | Done ✓ |
 | 6 | Mechanistic summary (TF regulons + upstream signals) | Done ✓ |
-| 7 | Feature selection (LASSO + Boruta + XGBoost) | Not started ← next |
-| 8 | Classifier training & validation | Not started |
-| 9 | Continuous healing index score | Not started |
+| 7 | Feature selection (LASSO + Boruta + XGBoost) | Done ✓ |
+| 8 | Classifier training & validation | Done ✓ |
+| 9 | Continuous healing index score | Done ✓ |
 
 ---
 
@@ -238,21 +238,62 @@ Additional threads from Stage 4:
 
 ---
 
-## Stage 7 — Feature Selection (Not Started) ← Next
+## Stage 7 — Feature Selection ✓
 
-Candidate feature space (ready): **119 genes** from the pySCENIC × CellRank T-FAP overlap (`data/cellrank/pyscenic_cellrank_tfap_overlap.csv`) plus TSPC marker genes (Tppp3, Prg4, Igfbp6, Sema3c, Cd34). Apply LASSO, Boruta, and XGBoost independently on Harvey 2019 TSPC/T-FAP clusters; take the intersection of genes selected by ≥2 methods. Target: minimal panel of ~10–30 genes.
+**Goal:** Reduce the 119-gene pySCENIC × CellRank T-FAP overlap (`data/cellrank/pyscenic_cellrank_tfap_overlap.csv`) plus 5 TSPC markers (Tppp3, Prg4, Igfbp6, Sema3c, Cd34) — 124 candidates total — to a minimal classifier panel, applying LASSO, Boruta, and XGBoost independently on Harvey 2019 TSPC (266) vs. T-FAP (433) cells and taking the intersection of genes selected by ≥2 of 3 methods.
+**Script:** `scripts/ipynb/08_feature_selection.ipynb`
+
+Per-method yield: LASSO 65 genes (10-fold CV, L1 logistic regression, C=1.62), Boruta 52 confirmed genes (+2 tentative), XGBoost 33 genes (above-mean gain importance). **≥2/3-method intersection: 44 genes** — larger than the ~10–30 target, expected since the 124-candidate pool was already twice-filtered (pySCENIC regulon membership, then CellRank lineage-driver correlation) before any of the three methods ran, so a high hit rate reflects a pre-enriched input rather than under-selective methods.
+
+Two tiers saved to `data/feature_selection/`:
+- **`final_panel_annotated.csv` (44 genes, ≥2/3 methods)** — the literal Stage 7 deliverable per the stated rule.
+- **`core_panel_unanimous.csv` (23 genes, unanimous 3/3)** — falls inside the ~10–30 target; recommended starting panel for Stage 8, with the 44-gene panel available for a robustness pass.
+
+**Notable:** all 5 hand-picked TSPC markers independently cleared the ≥2/3 bar (Tppp3, Sema3c even hit unanimous 3/3), despite none of the three methods knowing which candidates were TSPC- vs. T-FAP-derived. 30/44 (68%) of the selected genes — 14/23 (61%) of the unanimous core — are Junb/Jund/Klf9 targets, consistent with Stage 6's finding that these three regulons anchor most of the CellRank T-FAP driver overlap (this fact was used only as a post-hoc annotation, not inside any of the three methods).
+
+![Feature-selection method overlap](../figures/feature_selection/method_overlap.png)
+
+**Caveats carried into Stage 8:** no biological replicates in Harvey 2019 (single pooled sample per condition) — CV folds here are cell-level splits within one sample, not independent-sample generalisation; Cherief 2023 (innervated vs. denervated) is the real generalisation test in Stage 8. Harvey's T-FAP cluster was excluded from trajectory analysis by the original paper's own authors — T-FAP is this project's own annotation, not an externally validated cell state. Cross-method agreement establishes consistent differential expression across three modelling assumptions, not causal relevance to fate commitment.
 
 ---
 
-## Stage 8 — Classifier Training & Validation (Not Started)
+## Stage 8 — Classifier Training & Validation ✓
 
-Train on Harvey 2019 TSPC/T-FAP clusters. Validate generalization on Cherief 2023 innervated vs. denervated — a well-calibrated classifier should shift toward the fibrotic end of the score distribution in denervated samples.
+**Goal:** Train a TSPC vs. T-FAP classifier on the Stage 7 gene panels and validate it on an independent dataset.
+**Script:** `scripts/ipynb/09_classifier_training_validation.ipynb`
+
+Logistic regression (L2, class-balanced) trained on Harvey 2019 for both the `core_23` (unanimous 3/3) and `full_44` (≥2/3) panels, 10-fold stratified CV: `core_23` ROC-AUC 0.993 / accuracy 96.6%; `full_44` ROC-AUC 0.995 / accuracy 97.7%.
+
+**Cross-dataset generalisation on Cherief 2023** — Cherief's `cell_type` label is independently marker-based (Stage 1c), not transferred from Harvey (Stage 3B is on hold), so this is a genuine held-out test: `core_23` ROC-AUC 0.989 / accuracy 93.5% / balanced accuracy 88.3%; `full_44` ROC-AUC 0.977 / accuracy 92.7% / balanced accuracy 88.2%. **The smaller 23-gene panel matches or edges out the 44-gene panel out-of-dataset** despite trailing it in-dataset — recommended as the Stage 9 primary panel. Both panels share a real weak point: TSPC recall is only 77–78% on Cherief (T-FAP recall 98–99%), mirroring the class imbalance in Harvey training data (266 TSPC vs. 433 T-FAP) and the Stage 3A finding that TSPC has a weaker transcriptional signature than T-FAP in this system — the eventual healing-index score will be more reliable for flagging fibrotic drift than for confidently confirming full regenerative identity.
+
+**Distributional shift check** (all 3,900 Cherief cluster-8 cells, matching Stage 4's CellRank population): mean P(T-FAP) rises Innervated→Denervated, 0.732→0.881 (`core_23`) and 0.684→0.818 (`full_44`) — correct direction, qualitatively consistent with CellRank's independently-derived 17.2%→28.9% T-FAP fate-probability shift, though the two scores are different model outputs and not directly comparable in magnitude. Part of the population-level shift is a composition effect already documented in Stage 1c (T-FAP's share of cluster-8 rises 26.3%→38.4%, TSPC's falls 15.8%→6.7%), but a genuine within-population signal survives it too: cells still labelled TSPC score higher toward T-FAP after denervation (0.217→0.381, `core_23`), a graded-drift signal rather than a clean binary switch.
+
+![Cherief generalisation confusion matrices](../figures/classifier/cherief_generalization_confusion.png)
+![Classifier score shift by innervation status](../figures/classifier/score_shift_by_condition.png)
+
+Saved models: `data/classifier/classifier_core_23.joblib`, `classifier_full_44.joblib` (scaler + logistic regression bundles). `data/classifier/cherief_healing_index_scores.csv` carries per-cell P(T-FAP) scores forward into Stage 9.
+
+**Caveats carried into Stage 9:** no biological replicates in either dataset; no batch correction between Harvey and Cherief beyond per-gene standardisation fit on Harvey alone (different labs, and uninjured-vs-post-injury contexts); Cherief's T-FAP inherits the same project-defined-annotation caveat as Harvey's.
 
 ---
 
-## Stage 9 — Continuous Healing Index Score (Not Started)
+## Stage 9 — Continuous Healing Index Score ✓
 
-Convert binary classifier to a continuous score using predicted class probabilities. Apply to new tendon scRNA-seq datasets from the lab.
+**Goal:** Convert the Stage 8 binary classifier into a continuous per-cell score, apply it across datasets, and prepare it for future lab data.
+**Script:** `scripts/ipynb/10_healing_index.ipynb`
+
+**Score construction:** built on the classifier's raw log-odds (`decision_function`) rather than the sigmoid probability — the Stage 8 probability was heavily saturated (65% of Cherief cluster-8 cells at P(T-FAP) < 0.05 or > 0.95), losing resolution exactly where a continuous index is most useful. The **Healing Index** (0–100, higher = regenerative/TSPC-like) is the log-odds percentile-ranked against a fixed Harvey 2019 reference distribution, so the scale stays interpretable and comparable across datasets rather than being re-normalised per dataset.
+
+**Applied to Cherief 2023** (all 3,900 cluster-8 cells): Innervated mean 25.2 (median 18.9) vs. Denervated mean 15.5 (median 12.4) — correct direction, and now with real distributional structure instead of the Stage 8 probability's pile-up at the extremes. By sub-cluster: TSPC highest (52.0), T-FAP lowest (7.4), Stromal (22.3) and Tenogenic-progenitor (21.2) — both never seen in training — sit sensibly in between.
+
+**Independent cross-check:** Spearman rho = 0.656 (p≈0) between the Healing Index and CellRank's TSPC terminal-state fate probability (Stage 4) — two methods sharing no code path. Not a perfect correlation, and shouldn't be: CellRank's DPT-based ordering was already flagged as unreliable in Stage 4, visible here as a band of cells at CellRank probability ≈1.0 spanning a wide range of Healing Index values. Read this as directional corroboration, not validation against ground truth.
+
+![Healing Index by condition and cell type](../figures/healing_index/healing_index_cherief.png)
+![Healing Index vs. CellRank cross-check](../figures/healing_index/healing_index_vs_cellrank.png)
+
+**New lab data:** no third tendon scRNA-seq dataset exists in this repository. `score_new_dataset()` in the notebook is a documented, one-call function that scores a new `.h5ad` against the same fixed Harvey reference (saved at `data/healing_index/harvey_reference_scores.npy`) the moment one is available — not demonstrated against fabricated data.
+
+**This closes the Stage 0–9 pipeline as originally scoped.** Every validation performed across Stages 7–9 (Harvey CV, Cherief generalisation, the CellRank cross-check) is a within- or cross-*dataset* check — neither dataset has biological replicates, so none of this has yet been tested across independent animals or cohorts. Scoring genuinely new lab-generated data is the natural next step and the first real biological-replicate test this signature will face.
 
 ---
 
@@ -276,6 +317,16 @@ Convert binary classifier to a continuous score using predicted class probabilit
 | `data/Cherief_scRNA-seq/GSE244921_cluster8_cellrank.h5ad` | Cluster 8 AnnData with fate probabilities added (from CellRank) |
 | `data/mechanistic_synthesis/tf_signal_target_synthesis.csv` | Stage 6 — per-TF synthesis table (target counts, CellRank drivers, receptor feedback targets) |
 | `data/mechanistic_synthesis/liana_receptor_tf_feedback.csv` | Stage 6 — headline LIANA receptor genes cross-referenced against T-FAP regulon targets |
+| `data/feature_selection/gene_selection_by_method.csv` | Stage 7 — all 124 candidates x LASSO/Boruta/XGBoost selection flags |
+| `data/feature_selection/final_panel_annotated.csv` | Stage 7 — 44-gene panel selected by >=2/3 methods, annotated with CellRank correlations and regulons |
+| `data/feature_selection/core_panel_unanimous.csv` | Stage 7 — 23-gene subset selected unanimously by all 3 methods (falls within ~10-30 target) |
+| `data/classifier/classifier_core_23.joblib` | Stage 8 — trained scaler + logistic regression bundle, 23-gene core panel (Stage 9 primary) |
+| `data/classifier/classifier_full_44.joblib` | Stage 8 — trained scaler + logistic regression bundle, 44-gene full panel (robustness check) |
+| `data/classifier/cherief_healing_index_scores.csv` | Stage 8 — per-cell P(T-FAP) classifier score for all 3,900 Cherief cluster-8 cells, both panels |
+| `data/classifier/harvey_cv_metrics.csv` | Stage 8 — Harvey 10-fold CV metrics (ROC-AUC, accuracy, balanced accuracy, F1) per panel |
+| `data/classifier/cherief_generalization_metrics.csv` | Stage 8 — Cherief cross-dataset generalisation metrics per panel |
+| `data/healing_index/harvey_reference_scores.npy` | Stage 9 — fixed Harvey 2019 reference distribution used to percentile-calibrate the Healing Index |
+| `data/healing_index/cherief_healing_index.csv` | Stage 9 — per-cell Healing Index (0-100) for all 3,900 Cherief cluster-8 cells |
 | `scripts/ipynb/01_cherief2023_qc_clustering.ipynb` | Cherief 2023 — QC, clustering, annotation |
 | `scripts/ipynb/02_cherief2023_subcluster_tspc_tfap.ipynb` | Cluster 8 sub-clustering → TSPC/T-FAP |
 | `scripts/ipynb/03_harvey2019_qc_clustering.ipynb` | Harvey 2019 — QC, clustering, marker annotation |
@@ -283,6 +334,9 @@ Convert binary classifier to a continuous score using predicted class probabilit
 | `scripts/ipynb/05_cellrank_fate_trajectory.ipynb` | CellRank fate trajectory — DPT, macrostates, fate probabilities, lineage drivers |
 | `scripts/ipynb/06_liana_cellcell_communication.ipynb` | LIANA CCC — annotation, rank_aggregate, differential, visualisation |
 | `scripts/ipynb/07_mechanistic_synthesis.ipynb` | Stage 6 — TF regulon × CellRank driver × LIANA receptor cross-referencing, regulatory circuit diagram |
+| `scripts/ipynb/08_feature_selection.ipynb` | Stage 7 — LASSO/Boruta/XGBoost feature selection on Harvey 2019 TSPC/T-FAP, method-overlap intersection |
+| `scripts/ipynb/09_classifier_training_validation.ipynb` | Stage 8 — logistic regression classifier, Harvey CV + Cherief cross-dataset generalisation + distributional shift check |
+| `scripts/ipynb/10_healing_index.ipynb` | Stage 9 — continuous Healing Index (percentile-calibrated log-odds), CellRank cross-check, turnkey scoring function for new data |
 | `scripts/sh/pyscenic_00_setup.sh` | HPC environment setup (patched pySCENIC 0.12.0) |
 | `scripts/sh/pyscenic_03_grn.sh` | SLURM: GRNBoost2 TF-gene co-expression |
 | `scripts/sh/pyscenic_04_ctx.sh` | SLURM: cisTarget motif pruning |
@@ -293,5 +347,8 @@ Convert binary classifier to a continuous score using predicted class probabilit
 | `figures/pyscenic/` | pySCENIC regulon UMAP and heatmap figures |
 | `figures/liana/` | LIANA differential and bubble plot figures |
 | `figures/mechanistic_synthesis/` | Stage 6 — regulatory circuit diagram, TF × CellRank driver bar chart |
+| `figures/feature_selection/` | Stage 7 — LASSO/Boruta/XGBoost method-overlap bar chart |
+| `figures/classifier/` | Stage 8 — CV/generalisation confusion matrices, classifier score-shift violin plot |
+| `figures/healing_index/` | Stage 9 — Healing Index distributions, CellRank cross-check scatter |
 | `figures/pipeline_flowchart.png` | Full analysis pipeline diagram |
 | `docs/research-plan.md` | Detailed scientific rationale and pipeline |
