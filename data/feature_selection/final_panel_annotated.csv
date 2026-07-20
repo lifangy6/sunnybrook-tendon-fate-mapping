@@ -1,0 +1,45 @@
+gene,LASSO,Boruta,XGBoost,n_methods,junb_jund_klf9_target,tspc_marker,T-FAP_1_corr,T-FAP_2_corr,regulons
+C3,True,True,True,3,True,False,0.098,0.389,Junb(+)
+Camk2n1,True,True,True,3,True,False,0.234,-0.118,Klf9(+)
+Cpxm1,True,True,True,3,True,False,0.29,0.18,Junb(+)
+Fth1,True,True,True,3,True,False,0.104,0.267,Jund(+)
+Igfbp7,True,True,True,3,True,False,0.287,0.15,Jund(+)
+Nfib,True,True,True,3,True,False,0.395,0.046,"Junb(+), Klf9(+)"
+Ptx3,True,True,True,3,True,False,0.121,0.392,"Junb(+), Nfkb1(+), Klf9(+)"
+Rps29,True,True,True,3,True,False,0.246,0.113,Junb(+)
+Scn7a,True,True,True,3,True,False,0.191,0.258,Jund(+)
+Serping1,True,True,True,3,True,False,0.285,0.236,Junb(+)
+Slc38a2,True,True,True,3,True,False,0.366,0.085,"Fosb(+), Junb(+)"
+Slfn5,True,True,True,3,True,False,0.27,0.017,Junb(+)
+Steap4,True,True,True,3,True,False,0.487,0.264,"Egr1(+), Junb(+)"
+Zfp36l1,True,True,True,3,True,False,0.321,0.167,"Irf1(+), Jund(+), Fosb(+), Junb(+), Atf3(+), Klf9(+), Klf6(+)"
+Aebp1,True,True,True,3,False,False,0.122,0.207,Atf3(+)
+C1ra,True,True,True,3,False,False,0.282,0.268,Cebpd(+)
+Cebpd,True,True,True,3,False,False,0.351,0.129,Atf3(+)
+Cxcl12,True,True,True,3,False,False,0.339,0.463,Jun(+)
+Lpl,True,True,True,3,False,False,0.47,0.03,Cebpd(+)
+Sema3c,True,True,True,3,False,True,,,
+Sfrp2,True,True,True,3,False,False,0.059,0.385,Jun(+)
+Tppp3,True,True,True,3,False,True,,,
+Zfp36,True,True,True,3,False,False,0.314,0.065,"Irf1(+), Jun(+), Fos(+), Atf3(+)"
+Adamts1,True,False,True,2,True,False,0.287,0.022,"Jund(+), Klf9(+), Klf6(+)"
+Apod,True,True,False,2,True,False,0.214,0.266,Jund(+)
+Cxcl1,False,True,True,2,True,False,0.179,0.233,"Junb(+), Nfkb1(+), Klf9(+)"
+Dcn,True,True,False,2,True,False,0.295,-0.108,Jund(+)
+Fosb,True,True,False,2,True,False,0.326,0.227,"Jund(+), Fosb(+), Jun(+), Nfkb1(+), Atf3(+)"
+Fst,False,True,True,2,True,False,0.243,0.165,Klf9(+)
+Gpx3,False,True,True,2,True,False,0.023,0.295,Jund(+)
+Hspa8,True,True,False,2,True,False,0.066,0.218,"Nfkb1(+), Atf3(+), Klf9(+), Klf6(+)"
+Il11ra1,False,True,True,2,True,False,0.348,0.206,Jund(+)
+Kitl,False,True,True,2,True,False,0.339,0.051,Junb(+)
+Mmp3,True,True,False,2,True,False,0.287,0.313,Jund(+)
+Ptgs2,True,True,False,2,True,False,0.161,0.195,"Junb(+), Nfkb1(+)"
+Rpl32,True,True,False,2,True,False,-0.023,0.189,Jund(+)
+Selenop,True,True,False,2,True,False,0.445,0.073,Jund(+)
+Sfrp4,True,True,False,2,True,False,0.286,-0.117,"Jund(+), Junb(+)"
+Wnt5a,False,True,True,2,True,False,0.208,0.034,Jund(+)
+Acsl4,True,False,True,2,False,False,-0.04,0.211,Nfkb1(+)
+Cd34,True,True,False,2,False,True,,,
+Igfbp6,True,True,False,2,False,True,,,
+Pnrc1,True,True,False,2,False,False,0.141,0.193,"Fosb(+), Atf3(+)"
+Prg4,False,True,True,2,False,True,,,
