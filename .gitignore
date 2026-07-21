@@ -22,9 +22,10 @@ docs/seminar/*.png
 # Miscellaneous folder
 misc/
 
-# Draft markdown files
+# Draft files
 docs/md/
 *.docx
+*.pptx
 
 # Cherief scRNA-seq large data
 data/Cherief_scRNA-seq/GSM7832064_Control/
