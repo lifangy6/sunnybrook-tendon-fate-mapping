@@ -36,8 +36,8 @@ FONT = "Segoe UI"
 INK = RGBColor(0x16, 0x20, 0x2A)
 INK_D = RGBColor(0x0E, 0x16, 0x1E)
 INK_2 = RGBColor(0x5C, 0x6B, 0x7A)
-TEAL = RGBColor(0x0E, 0x7C, 0x6B)
-RED = RGBColor(0xBE, 0x3A, 0x34)
+TEAL = RGBColor(0x07, 0x46, 0x3C)
+RED = RGBColor(0xD6, 0x54, 0x4A)
 SALMON = RGBColor(0xE8, 0x8A, 0x84)
 PAPER = RGBColor(0xFC, 0xFC, 0xFA)
 BAND = RGBColor(0xEF, 0xF2, 0xF1)
@@ -154,7 +154,7 @@ def act_header(slide, i, n, title, accent, lead) -> float:
     text(slide, x + 1.78, ACT_Y - 0.12, cw - 1.78, th + 0.4, t_par)
     ry = ACT_Y + max(d + 0.18, th + 0.18)
     rect(slide, x, ry, cw, 0.05, fill=accent)
-    l_par = [{"t": lead, "size": 23.0, "color": INK_2, "spacing": 1.16}]
+    l_par = [{"t": lead, "size": 23, "color": INK_2, "spacing": 1.16}]
     lh = block_h(l_par, cw)
     text(slide, x, ry + 0.32, cw, lh + 0.4, l_par)
     return (ry + 0.32 + lh) - ACT_Y
@@ -344,7 +344,7 @@ BH = 2.48
 rect(slide, MARGIN, BY, 26.9, BH, fill=INK_D)
 rect(slide, MARGIN, BY, 0.15, BH, fill=TEAL)
 text(slide, MARGIN + 0.68, BY + 0.38, 25.6, BH - 0.5, [
-    {"t": "WHAT TO TAKE AWAY", "size": 16, "bold": True, "color": MUTED,
+    {"t": "WHAT TO TAKE AWAY", "size": 16.5, "bold": True, "color": MUTED,
      "space_after": 8},
     {"t": "Healing a tendon may be less about switching regeneration on than "
           "about keeping the fibrotic default switched off. The Healing Index "
@@ -354,7 +354,7 @@ text(slide, MARGIN + 0.68, BY + 0.38, 25.6, BH - 0.5, [
 ])
 lx = MARGIN + 27.6
 text(slide, lx, BY + 0.06, W - MARGIN - lx, BH, [
-    {"t": "LIMITATIONS  ·  WHAT'S NEXT", "size": 16, "bold": True,
+    {"t": "LIMITATIONS  ·  WHAT'S NEXT", "size": 16.5, "bold": True,
      "color": INK_2, "space_after": 7},
     {"t": "▪  Finding no reproducible regenerative regulon is not proof that "
           "none exists — both datasets are small, and a weaker TSPC program "
@@ -387,8 +387,8 @@ for fx, fw, head, body in [
      "help and shared resources during our time in the same lab."),
 ]:
     text(slide, fx, fy, fw, 1.3, [
-        {"t": head, "size": 16, "bold": True, "color": INK, "space_after": 3},
-        {"t": body, "size": 15, "color": INK_2, "spacing": 1.15},
+        {"t": head, "size": 16.5, "bold": True, "color": INK, "space_after": 3},
+        {"t": body, "size": 16.5, "color": INK_2, "spacing": 1.15},
     ])
 
 fy += 1.18
@@ -411,13 +411,13 @@ REFS = [
     "Methods, 21, 1196–1205.",
 ]
 text(slide, MARGIN, fy, 5.4, 0.6,
-     [{"t": "References", "size": 16, "bold": True, "color": INK}])
+     [{"t": "References", "size": 16.5, "bold": True, "color": INK}])
 ref_w = (W - 2 * MARGIN - 5.6 - 2 * 0.7) / 3
 for i, r in enumerate(REFS):
     cxr = MARGIN + 5.6 + (i % 3) * (ref_w + 0.7)
     cyr = fy + (i // 3) * 0.62
     text(slide, cxr, cyr, ref_w, 0.60,
-         [{"t": f"{i + 1}.  {r}", "size": 13, "color": INK_2, "spacing": 1.08}])
+         [{"t": f"{i + 1}.  {r}", "size": 16.5, "color": INK_2, "spacing": 1.08}])
 
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

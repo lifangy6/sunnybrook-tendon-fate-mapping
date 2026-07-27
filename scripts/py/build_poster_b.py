@@ -38,8 +38,8 @@ FONT = "Segoe UI"
 INK = RGBColor(0x16, 0x20, 0x2A)
 INK_D = RGBColor(0x0E, 0x16, 0x1E)
 INK_2 = RGBColor(0x5C, 0x6B, 0x7A)
-TEAL = RGBColor(0x0E, 0x7C, 0x6B)
-RED = RGBColor(0xBE, 0x3A, 0x34)
+TEAL = RGBColor(0x07, 0x46, 0x3C)
+RED = RGBColor(0xD6, 0x54, 0x4A)
 SALMON = RGBColor(0xE8, 0x8A, 0x84)
 PAPER = RGBColor(0xFC, 0xFC, 0xFA)
 BAND = RGBColor(0xEF, 0xF2, 0xF1)
@@ -186,7 +186,7 @@ text(slide, MARGIN, 3.16, 34.0, 1.9, [
           "University of Guelph    ·    ²Sunnybrook Research Institute    ·    "
           "³School of Computer Science, College of Computational, Mathematical "
           "and Physical Sciences, University of Guelph",
-     "size": 16.0, "color": MUTED, "spacing": 1.14},
+     "size": 16.5, "color": MUTED, "spacing": 1.14},
 ])
 LOGOS = [
     (LOGO / "sunnybrook3.png", 7.60),
@@ -230,7 +230,7 @@ y += caption(slide, x, y, cw,
              "(TrkA-F592A mice + 1NMPP1), not surgically — “denervated” is "
              "shorthand throughout.") + 0.40
 ob = [
-    {"t": "OBJECTIVE", "size": 16, "bold": True, "color": TEAL,
+    {"t": "OBJECTIVE", "size": 16.5, "bold": True, "color": TEAL,
      "space_after": 7},
     {"t": "Identify the transcription-factor program that carries out this "
           "innervation-dependent fate decision, then compress it into a "
@@ -326,7 +326,7 @@ for claim, test, verdict, detail, col in CHECKS:
     cp = [
         {"t": claim, "size": 17.5, "bold": True, "color": INK, "spacing": 1.08,
          "space_after": 3},
-        {"t": test, "size": 15.5, "italic": True, "color": INK_2,
+        {"t": test, "size": 16.5, "italic": True, "color": INK_2,
          "space_after": 4},
         {"t": f"{verdict}  ·  {detail}", "size": 17, "bold": True,
          "color": col},
@@ -358,7 +358,7 @@ y += caption(slide, x, y, cw,
              "the 23 final panel genes are their targets. 12 of the 15 "
              "regulons are shown — three contribute none.") + 0.40
 kf = [
-    {"t": "KEY FINDING", "size": 16, "bold": True, "color": SALMON,
+    {"t": "KEY FINDING", "size": 16.5, "bold": True, "color": SALMON,
      "space_after": 7},
     {"t": "The fate decision is asymmetric. Innervation appears to suppress a "
           "default fibrotic program rather than to activate a regenerative "
@@ -420,7 +420,7 @@ text(slide, cx, CY + 0.46, 17.6, CH - 0.9, [
 ])
 lx = cx + 18.3
 text(slide, lx, CY + 0.46, W - MARGIN - lx, CH - 0.9, [
-    {"t": "LIMITATIONS  ·  WHAT'S NEXT", "size": 15.5, "bold": True,
+    {"t": "LIMITATIONS  ·  WHAT'S NEXT", "size": 16.5, "bold": True,
      "color": INK_2, "space_after": 6},
     {"t": "▪  No reproducible regenerative regulon is not proof none exists — "
           "both datasets are small.", "size": 17, "color": INK, "spacing": 1.1,
@@ -452,8 +452,8 @@ for fx, fw, head, body in [
      "help and shared resources during our time in the same lab."),
 ]:
     text(slide, fx, fy, fw, 1.3, [
-        {"t": head, "size": 16, "bold": True, "color": INK, "space_after": 3},
-        {"t": body, "size": 15, "color": INK_2, "spacing": 1.15},
+        {"t": head, "size": 16.5, "bold": True, "color": INK, "space_after": 3},
+        {"t": body, "size": 16.5, "color": INK_2, "spacing": 1.15},
     ])
 
 fy += 1.18
@@ -476,13 +476,13 @@ REFS = [
     "Methods, 21, 1196–1205.",
 ]
 text(slide, MARGIN, fy, 5.4, 0.6,
-     [{"t": "References", "size": 16, "bold": True, "color": INK}])
+     [{"t": "References", "size": 16.5, "bold": True, "color": INK}])
 ref_w = (W - 2 * MARGIN - 5.6 - 2 * 0.7) / 3
 for i, r in enumerate(REFS):
     cxr = MARGIN + 5.6 + (i % 3) * (ref_w + 0.7)
     cyr = fy + (i // 3) * 0.62
     text(slide, cxr, cyr, ref_w, 0.60,
-         [{"t": f"{i + 1}.  {r}", "size": 13, "color": INK_2, "spacing": 1.08}])
+         [{"t": f"{i + 1}.  {r}", "size": 16.5, "color": INK_2, "spacing": 1.08}])
 
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

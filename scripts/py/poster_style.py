@@ -5,6 +5,10 @@ re-learn the legend: teal always means regenerative / TSPC / innervated, red
 always means fibrotic / T-FAP / denervated, and the two bystander populations
 recede into grey. All figures render transparent and untitled -- the poster's
 own typography supplies headings and captions.
+
+The teal/red pair is separated in *lightness* as well as hue (about 2.7:1) so it
+survives red-green colour blindness; keep that gap if you retune the palette,
+and never let colour be the only channel carrying meaning.
 """
 from __future__ import annotations
 
@@ -15,10 +19,10 @@ from matplotlib import font_manager
 import matplotlib.patheffects as pe
 
 # --- semantic palette -------------------------------------------------------
-TEAL = "#0E7C6B"        # regenerative / TSPC / innervated
-TEAL_L = "#7FC4B8"
-RED = "#BE3A34"         # fibrotic / T-FAP / denervated
-RED_L = "#E5A29D"
+TEAL = "#07463C"        # regenerative / TSPC / innervated
+TEAL_L = "#6FB3A5"
+RED = "#D6544A"         # fibrotic / T-FAP / denervated
+RED_L = "#F0A9A2"
 INK = "#16202A"         # primary text
 INK_2 = "#5C6B7A"       # secondary text
 GREY = "#93A3B2"        # bystander population 1 (Tenogenic-progenitor)
@@ -37,8 +41,8 @@ COND_COLORS = {"Innervated": TEAL, "Denervated": RED}
 # TF family colours for the circuit diagram
 FAMILY_COLORS = {
     "AP-1": RED,
-    "KLF": "#8C5AA8",
-    "NF-kB/Inflammatory": "#1F6FA8",
+    "KLF": "#4A2C6B",
+    "NF-kB/Inflammatory": "#2F7DA8",
 }
 
 
@@ -54,7 +58,7 @@ def pick_font() -> str:
 FONT = pick_font()
 
 
-def apply_style(base: float = 17.0) -> None:
+def apply_style(base: float = 18.0) -> None:
     """Figures are rendered at their final poster size, so point sizes here are
     literal poster point sizes."""
     plt.rcParams.update({
