@@ -20,7 +20,7 @@ from matplotlib.patches import Circle, FancyBboxPatch
 sys.path.insert(0, str(Path(__file__).parent))
 from poster_style import (  # noqa: E402
     apply_style, save, halo, CELL_COLORS, COND_COLORS, FAMILY_COLORS,
-    TEAL, RED, INK, INK_2, GREY, GREY_L, GOLD,
+    BLUE, RED, INK, INK_2, GREY, GREY_L, GOLD,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -89,8 +89,8 @@ def fig1_umap():
     ax.annotate("", xy=(x0, y0 + ln), xytext=(x0, y0),
                 arrowprops=dict(arrowstyle="-|>", color=INK_2, lw=1.7),
                 annotation_clip=False)
-    ax.text(x0 + ln * 1.15, y0, "UMAP1", fontsize=17, color=INK_2, va="center")
-    ax.text(x0, y0 + ln * 1.15, "UMAP2", fontsize=17, color=INK_2,
+    ax.text(x0 + ln * 1.15, y0, "UMAP1", fontsize=16.5, color=INK_2, va="center")
+    ax.text(x0, y0 + ln * 1.15, "UMAP2", fontsize=16.5, color=INK_2,
             ha="center", va="bottom", rotation=90)
     save(fig, OUT / "fig1_umap_subclusters.png")
 
@@ -237,12 +237,12 @@ def fig3_regulon_scatter():
                 arrowprops=dict(arrowstyle="-", color=RED, lw=1.3, alpha=0.75))
 
     ax.text(-lim * 0.55, -lim * 0.34, "0", ha="center", va="center", fontsize=46,
-            fontweight="bold", color=TEAL, zorder=6)
+            fontweight="bold", color=BLUE, zorder=6)
     ax.text(-lim * 0.55, -lim * 0.62, "replicate as\nregenerative",
-            ha="center", va="center", fontsize=17, color=TEAL, linespacing=1.28,
+            ha="center", va="center", fontsize=17, color=BLUE, linespacing=1.28,
             fontweight="bold", zorder=6)
     ax.text(-lim * 0.55, -lim * 0.85, "nothing lands in this quadrant",
-            ha="center", va="center", fontsize=17, color=TEAL,
+            ha="center", va="center", fontsize=15, color=BLUE,
             style="italic", zorder=6)
 
     ax.set_xlim(-lim, lim)
@@ -252,7 +252,7 @@ def fig3_regulon_scatter():
     for s in ("left", "bottom"):
         ax.spines[s].set_visible(False)
     ax.tick_params(length=4)
-    leg = ax.legend(loc="lower right", frameon=False, fontsize=17,
+    leg = ax.legend(loc="lower right", frameon=False, fontsize=15.2,
                     scatterpoints=1, handletextpad=0.5, labelspacing=0.75,
                     borderpad=0.2)
     for t in leg.get_texts():
@@ -338,7 +338,7 @@ def fig4_circuit():
     # in this project (progress.md, Stage 6 caveat) -- say so on the figure.
     ax.text(6.75, 0.16, "bar length = CellRank fate-driver genes contributed    ·    "
                         "italic = upstream signal inferred from literature, not tested here",
-            ha="center", va="top", fontsize=17, color=INK_2, style="italic")
+            ha="center", va="top", fontsize=15.5, color=INK_2, style="italic")
     save(fig, OUT / "fig4_circuit.png")
 
 
@@ -364,7 +364,9 @@ def fig5_venn():
 
     R = 0.86
     cen = {"L": (0.0, 0.50), "B": (-0.50, -0.36), "X": (0.50, -0.36)}
-    col = {"L": TEAL, "B": "#3E6E9E", "X": GOLD}
+    # Boruta was a second blue, which collides with BLUE now that blue carries
+    # semantic weight; violet keeps the three circles separable.
+    col = {"L": BLUE, "B": "#7B4F9E", "X": GOLD}
     name = {"L": "LASSO", "B": "Boruta", "X": "XGBoost"}
     tot = {"L": int(L.sum()), "B": int(B.sum()), "X": int(X.sum())}
 
@@ -387,7 +389,7 @@ def fig5_venn():
                         lw=2.5, zorder=6))
     ax.text(0.0, -0.02, str(r["LBX"]), ha="center", va="center", fontsize=37.8,
             fontweight="bold", color="white", zorder=7)
-    ax.text(0.0, -0.235, "genes", ha="center", va="center", fontsize=17,
+    ax.text(0.0, -0.235, "genes", ha="center", va="center", fontsize=15.2,
             color="white", zorder=7)
 
     title_pos = {"L": (0.0, 1.60), "B": (-1.30, -1.28), "X": (1.30, -1.28)}
@@ -397,7 +399,7 @@ def fig5_venn():
 
     ax.text(0, -1.58, f"from {len(g)} mechanism-derived candidates  "
                       f"·  {r['none']} selected by none",
-            ha="center", va="center", fontsize=17, color=INK_2, style="italic")
+            ha="center", va="center", fontsize=16.5, color=INK_2, style="italic")
     save(fig, OUT / "fig5_venn.png")
 
 
@@ -458,7 +460,7 @@ def fig6_roc():
             fontweight="bold", color=RED)
     ax.text(0.97, 0.47, "held-out ROC-AUC", ha="right", va="center",
             fontsize=17, color=RED, fontweight="bold")
-    leg = ax.legend(loc="lower right", frameon=False, fontsize=17,
+    leg = ax.legend(loc="lower right", frameon=False, fontsize=15.2,
                     handlelength=1.5, labelspacing=0.9, borderpad=0.2)
     for t in leg.get_texts():
         t.set_linespacing(1.25)
@@ -525,7 +527,7 @@ def fig7_healing_index():
                 it.set(color=CELL_COLORS[ct], linewidth=2.6)
         ax.text(103, y, f"{np.mean(v):.1f}", va="center", ha="left", fontsize=18.9,
                 fontweight="bold", color=CELL_COLORS[ct] if emph else INK_2)
-    ax.text(103, len(order) - 0.42, "mean", va="center", ha="left", fontsize=17,
+    ax.text(103, len(order) - 0.42, "mean", va="center", ha="left", fontsize=15.9,
             color=INK_2, style="italic")
     ax.set_yticks(range(len(order)))
     ax.set_yticklabels(order[::-1], fontsize=18.3)

@@ -1,14 +1,15 @@
 """Shared visual language for the BINF6999 poster figures.
 
 One semantic colour mapping is used across every figure so a viewer never has to
-re-learn the legend: teal always means regenerative / TSPC / innervated, red
+re-learn the legend: blue always means regenerative / TSPC / innervated, red
 always means fibrotic / T-FAP / denervated, and the two bystander populations
 recede into grey. All figures render transparent and untitled -- the poster's
 own typography supplies headings and captions.
 
-The teal/red pair is separated in *lightness* as well as hue (about 2.7:1) so it
-survives red-green colour blindness; keep that gap if you retune the palette,
-and never let colour be the only channel carrying meaning.
+Blue/red is deliberate: red-green is the pair the common colour-vision
+deficiencies (protan, deutan) confuse, so no other colour in this palette may
+be blue. That constraint is why the TF-family and Venn colours below are warm
+or violet rather than the blues they would otherwise naturally take.
 """
 from __future__ import annotations
 
@@ -19,10 +20,10 @@ from matplotlib import font_manager
 import matplotlib.patheffects as pe
 
 # --- semantic palette -------------------------------------------------------
-TEAL = "#07463C"        # regenerative / TSPC / innervated
-TEAL_L = "#6FB3A5"
-RED = "#D6544A"         # fibrotic / T-FAP / denervated
-RED_L = "#F0A9A2"
+BLUE = "#1F6FA8"        # regenerative / TSPC / innervated
+BLUE_L = "#8DBEDC"
+RED = "#BE3A34"         # fibrotic / T-FAP / denervated
+RED_L = "#E5A29D"
 INK = "#16202A"         # primary text
 INK_2 = "#5C6B7A"       # secondary text
 GREY = "#93A3B2"        # bystander population 1 (Tenogenic-progenitor)
@@ -31,18 +32,20 @@ GOLD = "#C8892B"        # accent, used only for the surviving/unanimous set
 PANEL = "#F4F6F7"
 
 CELL_COLORS = {
-    "TSPC": TEAL,
+    "TSPC": BLUE,
     "T-FAP": RED,
     "Tenogenic-progenitor": GREY,
     "Stromal": GREY_L,
 }
-COND_COLORS = {"Innervated": TEAL, "Denervated": RED}
+COND_COLORS = {"Innervated": BLUE, "Denervated": RED}
 
-# TF family colours for the circuit diagram
+# TF family colours for the circuit diagram. All three families drive the
+# fibrotic program, so they run red -> magenta -> violet; none may be blue,
+# which would read as "regenerative" against the semantic palette above.
 FAMILY_COLORS = {
     "AP-1": RED,
-    "KLF": "#4A2C6B",
-    "NF-kB/Inflammatory": "#2F7DA8",
+    "KLF": "#B04A7A",
+    "NF-kB/Inflammatory": "#7B4F9E",
 }
 
 
@@ -58,7 +61,7 @@ def pick_font() -> str:
 FONT = pick_font()
 
 
-def apply_style(base: float = 18.0) -> None:
+def apply_style(base: float = 17.0) -> None:
     """Figures are rendered at their final poster size, so point sizes here are
     literal poster point sizes."""
     plt.rcParams.update({
