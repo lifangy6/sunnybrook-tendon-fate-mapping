@@ -1,34 +1,51 @@
 # Export the poster .pptx files to PDF (for submission) and PNG (for visual
 # checking) via PowerPoint COM automation.
 #
-#   .\scripts\py\export_poster.ps1             # both variants
-#   .\scripts\py\export_poster.ps1 -Variant A  # just plan A
+#   .\scripts\py\export_poster.ps1                  # the final poster
+#   .\scripts\py\export_poster.ps1 -Variant Drafts  # the two frozen drafts
+#   .\scripts\py\export_poster.ps1 -Variant All     # everything
+#
+# Final is the default: plan A was chosen, so the drafts are frozen references
+# and re-exporting them is almost never what you want.
 #
 # Each PDF is written to a temp file and then moved into place. If the target
 # PDF is open in a viewer it holds a write lock, which would otherwise abort the
 # whole run; this way the export still succeeds and only the final move fails,
 # leaving the new copy alongside.
 param(
-    [ValidateSet("A", "B", "Both")]
-    [string]$Variant = "Both",
+    [ValidateSet("Final", "A", "B", "Drafts", "All")]
+    [string]$Variant = "Final",
     [int]$PngWidth = 3400
 )
 
 $root = (Get-Location).Path
 $drafts = Join-Path $root "BINF6999\drafts"
+$final = Join-Path $root "BINF6999\final"
+
+$wantFinal = $Variant -eq "Final" -or $Variant -eq "All"
+$wantA = $Variant -eq "A" -or $Variant -eq "Drafts" -or $Variant -eq "All"
+$wantB = $Variant -eq "B" -or $Variant -eq "Drafts" -or $Variant -eq "All"
 
 $targets = @()
-if ($Variant -eq "A" -or $Variant -eq "Both") {
+if ($wantFinal) {
     $targets += [pscustomobject]@{
-        Name = "A (three-act narrative)"
+        Name = "FINAL (three-act narrative)"
+        Pptx = Join-Path $final "LiF_BINF6999_Poster.pptx"
+        Pdf  = Join-Path $final "LiF_BINF6999_Poster.pdf"
+        Png  = Join-Path $final "poster_preview.png"
+    }
+}
+if ($wantA) {
+    $targets += [pscustomobject]@{
+        Name = "draft A (three-act narrative, frozen)"
         Pptx = Join-Path $drafts "LiF_BINF6999_Poster_Draft_A.pptx"
         Pdf  = Join-Path $drafts "LiF_BINF6999_Poster_Draft_A.pdf"
         Png  = Join-Path $drafts "poster_a_preview.png"
     }
 }
-if ($Variant -eq "B" -or $Variant -eq "Both") {
+if ($wantB) {
     $targets += [pscustomobject]@{
-        Name = "B (four-section)"
+        Name = "draft B (four-section, frozen)"
         Pptx = Join-Path $drafts "LiF_BINF6999_Poster_Draft_B.pptx"
         Pdf  = Join-Path $drafts "LiF_BINF6999_Poster_Draft_B.pdf"
         Png  = Join-Path $drafts "poster_b_preview.png"

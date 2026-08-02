@@ -198,10 +198,13 @@ def fig3_regulon_scatter():
     ax.axhline(0, color=INK_2, lw=1.4, zorder=1)
     ax.axvline(0, color=INK_2, lw=1.4, zorder=1)
 
+    # Every point here is differential in BOTH datasets -- df is built from the
+    # intersection. The grey ones are differential in both but in *opposite*
+    # directions, which is not the same claim as "only one dataset saw it".
     disc = df[~((df.harvey > 0) & (df.cherief > 0))]
     ax.scatter(disc.harvey, disc.cherief, s=155, facecolor="white",
                edgecolor=GREY, linewidths=2.2, zorder=3,
-               label="differential in one dataset only")
+               label="directions disagree")
     agree_x = df[(df.harvey > 0) & (df.cherief > 0) & ~df.final]
     ax.scatter(agree_x.harvey, agree_x.cherief, s=175, facecolor="white",
                edgecolor=RED, linewidths=2.4, zorder=4,
@@ -252,7 +255,10 @@ def fig3_regulon_scatter():
     for s in ("left", "bottom"):
         ax.spines[s].set_visible(False)
     ax.tick_params(length=4)
-    leg = ax.legend(loc="lower right", frameon=False, fontsize=15.2,
+    # Pinned to the lower-right corner in axes coordinates so the block cannot
+    # drift left over the vertical zero line as label lengths change.
+    leg = ax.legend(loc="lower right", bbox_to_anchor=(1.0, 0.0),
+                    bbox_transform=ax.transAxes, frameon=False, fontsize=15.2,
                     scatterpoints=1, handletextpad=0.5, labelspacing=0.75,
                     borderpad=0.2)
     for t in leg.get_texts():
@@ -356,9 +362,12 @@ def fig5_venn():
     }
     print(f"  [fig5] regions {r} | totals L={int(L.sum())} B={int(B.sum())} X={int(X.sum())}")
 
-    fig, ax = plt.subplots(figsize=(6.65, 6.6))
+    # The canvas grows with the y-range (3.50 -> 3.70 units) so the data-to-inch
+    # scale is unchanged: circles and type keep their size, the figure just
+    # gains footroom for the caption line.
+    fig, ax = plt.subplots(figsize=(6.65, 6.98))
     ax.set_xlim(-1.75, 1.75)
-    ax.set_ylim(-1.62, 1.88)
+    ax.set_ylim(-1.82, 1.88)
     ax.set_aspect("equal")
     ax.set_axis_off()
 
@@ -397,7 +406,8 @@ def fig5_venn():
         ax.text(x, y, f"{name[k]}\n{tot[k]} genes", ha="center", va="center",
                 fontsize=22, fontweight="bold", color=col[k], linespacing=1.25)
 
-    ax.text(0, -1.58, f"from {len(g)} mechanism-derived candidates  "
+    # Sits well clear of the two lower circle labels, which end near y = -1.48.
+    ax.text(0, -1.72, f"from {len(g)} mechanism-derived candidates  "
                       f"·  {r['none']} selected by none",
             ha="center", va="center", fontsize=16.5, color=INK_2, style="italic")
     save(fig, OUT / "fig5_venn.png")

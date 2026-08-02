@@ -1,10 +1,15 @@
-"""Assemble PLAN A: the three-act narrative 48 x 36 in poster.
+"""Assemble the FINAL poster -- the three-act narrative, 48 x 36 in.
 
-A three-act argument reading left to right, a full-width band reporting the
-findings that were stress-tested (two retracted, one confirmed), and a closing
-walk-away statement. The conventional four-section alternative is
-build_poster_b.py; the brainstorming the Poster Draft rubric asks for lives in
-BINF6999/drafts/poster_brainstorm.md.
+Plan A was chosen over the four-section Plan B, so this is the only poster
+script that should be edited from here on. It began as a copy of
+build_poster_a.py; that file and build_poster_b.py are now frozen drafts kept
+for reference and should not be re-run, since re-running them would overwrite
+the draft artifacts in BINF6999/drafts/ with whatever the figures look like
+today. Design rationale lives in BINF6999/drafts/poster_brainstorm.md.
+
+Note that figures are still shared with the drafts via poster_figures.py. That
+is fine because the drafts' exported .pptx/.pdf embed their images, so editing
+a figure for the final cannot alter an already-exported draft.
 
 python-pptx cannot measure rendered text, so text-block heights are estimated
 from character counts and the running y-position of each column is tracked
@@ -12,7 +17,7 @@ explicitly. The script prints a per-column budget at the end; if a column
 exceeds ACT_H it will collide with the stress band, so check that output.
 
 Run:  uv run --python 3.12 --with python-pptx --with pillow python \
-          scripts/py/build_poster_a.py
+          scripts/py/build_poster_final.py
 """
 from __future__ import annotations
 
@@ -28,7 +33,7 @@ from pptx.util import Inches, Pt
 ROOT = Path(__file__).resolve().parents[2]
 FIG = ROOT / "figures" / "poster"
 LOGO = ROOT / "BINF6999" / "drafts" / "logos"
-OUT = ROOT / "BINF6999" / "drafts" / "LiF_BINF6999_Poster_Draft_A.pptx"
+OUT = ROOT / "BINF6999" / "final" / "LiF_BINF6999_Poster.pptx"
 
 W, H = 48.0, 36.0
 FONT = "Segoe UI"
@@ -279,23 +284,28 @@ y = ACT_Y + act_header(
     slide, 2, "3", "So we measured the default", BLUE,
     lead="The fibrotic program is the one with reproducible signal, so it is "
          "also the one worth turning into a score.")
-y += GAP + 0.10
-# Venn and ROC side by side, scaled to a common height.
-row_h = 5.85
-vw = row_h * 1913 / 1565
-rw = row_h * 1789 / 1660
+y += GAP + 0.40
+# Venn and ROC side by side. Dimensions are read from the files rather than
+# hardcoded, so changing a figure's aspect cannot silently push the row into
+# the caption below it. The Venn is sized by width to hold its circle size;
+# the ROC keeps its own height and is centred against the taller Venn.
+_vpx, _rpx = Image.open(FIG / "fig5_venn.png").size, Image.open(FIG / "fig6_roc.png").size
+vw = 7.15
+vh = vw * _vpx[1] / _vpx[0]
+rh = 5.85
+rw = rh * _rpx[0] / _rpx[1]
 gap3 = cw - vw - rw
 img(slide, "fig5_venn.png", x, y, vw, vw)
-img(slide, "fig6_roc.png", x + vw + gap3, y + 0.05, rw, rw)
-y += row_h + 0.18
+img(slide, "fig6_roc.png", x + vw + gap3, y + max(0.0, (vh - rh) / 2), rw, rw)
+y += max(vh, rh) + 0.45
 y += caption(slide, x, y, cw,
              "Three methods agree on 23 genes; the panel then generalises.",
              "LASSO, Boruta and XGBoost ran independently on 124 "
              "mechanism-derived candidates. Trained on Harvey et al. (2019) "
              "and applied unchanged to Cherief et al. (2023), whose labels "
              "were assigned independently from marker expression and never "
-             "seen during selection or training.") + 0.34
-y += img(slide, "fig7_healing_index.png", x, y, cw, 14.00) + 0.18
+             "seen during selection or training.") + 0.75
+y += img(slide, "fig7_healing_index.png", x, y, cw, 14.00) + 0.45
 y += caption(slide, x, y, cw,
              "The score tracks innervation status.",
              "It also places two cell identities it never saw in training "
@@ -316,9 +326,13 @@ cards = [
     ('"Efna1→Epha3 is the strongest differential signal"',
      "LIANA permutation test, n = 100 (Dimitrov et al., 2022)",
      "RETRACTED", "p = 1.0", RED),
+    # "nothing at p < 0.05" was ambiguous: two per-dataset *raw* p-values do
+    # clear 0.05 (Fos in Harvey 0.010, Klf9 in Cherief 0.048). The test is the
+    # Fisher-combined p across both datasets, BH-corrected over 15 TFs, and the
+    # best q is 0.67 -- quoting that is unambiguous and a stronger claim.
     ('"T-FAP regulons feed back on Pdgfra"',
      "Hypergeometric enrichment, BH-corrected", "RETRACTED",
-     "nothing at p < 0.05", RED),
+     "nothing survives correction · best q = 0.67", RED),
     ('"Zero TSPC regulons replicate across datasets"',
      "200× power-matched stability selection", "CONFIRMED",
      "still zero at matched n", BLUE),
@@ -375,23 +389,65 @@ text(slide, lx, BY + 0.06, W - MARGIN - lx, BH, [
 FY = BY + BH + 0.38
 rect(slide, MARGIN, FY, W - 2 * MARGIN, 0.035, fill=LINE)
 fy = FY + 0.24
-for fx, fw, head, body in [
-    (MARGIN, 21.6, "Data & code availability",
-     "All data are publicly available (GEO GSE244921; SRA PRJNA506218). No "
-     "unpublished or confidential data were used. Computation was performed on "
-     "the Digital Research Alliance of Canada (NIBI). Code and analysis "
-     "notebooks: github.com/lifangy6/sunnybrook-tendon-fate-mapping"),
-    (MARGIN + 22.8, W - 2 * MARGIN - 22.8, "Acknowledgements",
-     "We thank Dr. Karl Cottenie for course instruction and for feedback at "
-     "every stage of this project, and Sabrina Saiphoo for her generosity with "
-     "help and shared resources during our time in the same lab."),
-]:
-    text(slide, fx, fy, fw, 1.3, [
-        {"t": head, "size": 16, "bold": True, "color": INK, "space_after": 3},
-        {"t": body, "size": 15, "color": INK_2, "spacing": 1.15},
-    ])
 
-fy += 1.18
+# Three columns reading left to right: data & code, acknowledgements,
+# references. Each carries its own mark -- a QR to the repository beside the
+# code statement, the DRAC lockup under the acknowledgement that credits the
+# allocation. Both marks use the derived assets from make_footer_assets.py; the
+# shipped originals are a 450 px stylised QR and a lockup that is 97% padding.
+# References is the deepest block, so it gets the widest column -- at 20+ in
+# every entry folds onto a single line and the footer stays shallow.
+FOOT_GUT = 0.80
+FOOT_WS = [10.5, 12.5, W - 2 * MARGIN - 10.5 - 12.5 - 2 * FOOT_GUT]
+FOOT_XS = [MARGIN,
+           MARGIN + FOOT_WS[0] + FOOT_GUT,
+           MARGIN + FOOT_WS[0] + FOOT_WS[1] + 2 * FOOT_GUT]
+
+# Both marks are square and the same size, so the two columns rhyme: a mark on
+# the left, its statement to the right. The DRAC square mark is used rather
+# than the wordmark because the name is already spelled out in the text.
+MARK_SIDE = 1.10
+
+
+def foot_head(x, w, title) -> float:
+    p = [{"t": title, "size": 16, "bold": True, "color": INK}]
+    h = block_h(p, w)
+    text(slide, x, fy, w, h + 0.3, p)
+    return h + 0.20
+
+
+# --- column 1: data & code, with the repository QR to the left of the text
+h1 = foot_head(FOOT_XS[0], FOOT_WS[0], "Data & code availability")
+slide.shapes.add_picture(str(LOGO / "qr_github_hires.png"),
+                         Inches(FOOT_XS[0]), Inches(fy + h1),
+                         Inches(MARK_SIDE), Inches(MARK_SIDE))
+_tx = FOOT_XS[0] + MARK_SIDE + 0.32
+_tw = FOOT_WS[0] - MARK_SIDE - 0.32
+_body = ("All data are publicly available (GEO GSE244921; SRA PRJNA506218). "
+         "No unpublished or confidential data were used. Code and analysis "
+         "notebooks: github.com/lifangy6/sunnybrook-tendon-fate-mapping")
+text(slide, _tx, fy + h1, _tw, MARK_SIDE + 0.3,
+     [{"t": _body, "size": 15, "color": INK_2, "spacing": 1.15}])
+
+# --- column 2: acknowledgements, same shape -- square DRAC mark, then text
+h2 = foot_head(FOOT_XS[1], FOOT_WS[1], "Acknowledgements")
+slide.shapes.add_picture(str(LOGO / "DRAC_mark_hires.png"),
+                         Inches(FOOT_XS[1]), Inches(fy + h2),
+                         Inches(MARK_SIDE), Inches(MARK_SIDE))
+_tx2 = FOOT_XS[1] + MARK_SIDE + 0.32
+_tw2 = FOOT_WS[1] - MARK_SIDE - 0.32
+_ack = [{"t": "We thank Dr. Karl Cottenie for course instruction, for feedback "
+              "at every stage of this project, and for the Digital Research "
+              "Alliance of Canada allocation (NIBI) under his sponsorship on "
+              "which this analysis was run; and Sabrina Saiphoo for her "
+              "generosity with help and shared resources during our time in "
+              "the same lab.",
+         "size": 15, "color": INK_2, "spacing": 1.15}]
+_ah = block_h(_ack, _tw2)
+text(slide, _tx2, fy + h2, _tw2, _ah + 0.3, _ack)
+
+# --- column 3: references, stacked rather than laid out in a grid
+h3 = foot_head(FOOT_XS[2], FOOT_WS[2], "References")
 REFS = [
     "Cherief, M., et al. (2023). TrkA-mediated sensory innervation of injured "
     "mouse tendon supports tendon sheath progenitor cell expansion and tendon "
@@ -410,14 +466,23 @@ REFS = [
     "CellRank 2: Unified fate mapping in multiview single-cell data. Nature "
     "Methods, 21, 1196–1205.",
 ]
-text(slide, MARGIN, fy, 5.4, 0.6,
-     [{"t": "References", "size": 16, "bold": True, "color": INK}])
-ref_w = (W - 2 * MARGIN - 5.6 - 2 * 0.7) / 3
+ry = fy + h3
 for i, r in enumerate(REFS):
-    cxr = MARGIN + 5.6 + (i % 3) * (ref_w + 0.7)
-    cyr = fy + (i // 3) * 0.62
-    text(slide, cxr, cyr, ref_w, 0.60,
-         [{"t": f"{i + 1}.  {r}", "size": 13, "color": INK_2, "spacing": 1.08}])
+    p = [{"t": f"{i + 1}.  {r}", "size": 13, "color": INK_2, "spacing": 1.08}]
+    rh = block_h(p, FOOT_WS[2])
+    text(slide, FOOT_XS[2], ry, FOOT_WS[2], rh + 0.3, p)
+    ry += rh + 0.07
+
+# The three columns are independent, so the footer is as tall as the tallest.
+_ends = [("data & code", fy + h1 + MARK_SIDE),
+         ("acknowledgements", fy + h2 + max(_ah, MARK_SIDE)),
+         ("references", ry - 0.07)]
+FOOT_BOTTOM = max(e for _, e in _ends)
+print("\nfooter columns (bottom margin must stay clear):")
+for _n, _e in _ends:
+    print(f"  {_n:18s} ends {_e:6.2f}   margin {H - _e:+.2f}")
+print(f"  {'deepest':18s} ends {FOOT_BOTTOM:6.2f}   margin {H - FOOT_BOTTOM:+.2f}"
+      f"   {'OK' if H - FOOT_BOTTOM >= 0.55 else '<-- TIGHT'}")
 
 
 OUT.parent.mkdir(parents=True, exist_ok=True)

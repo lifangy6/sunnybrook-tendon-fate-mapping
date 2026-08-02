@@ -189,7 +189,7 @@ text(slide, MARGIN, 3.16, 34.0, 1.9, [
      "size": 16.0, "color": MUTED, "spacing": 1.14},
 ])
 LOGOS = [
-    (LOGO / "sunnybrook3.png", 7.60),
+    (LOGO / "sunnybrook_log.png", 7.60),
     (LOGO / "GUELPH/SINGLECOLOUR_DARKBG/"
             "CBS_DIB_GUELPH_SINGLECOLOUR_DARKBG_V1_1.5IN_H_300PPI.png", 6.05),
 ]
