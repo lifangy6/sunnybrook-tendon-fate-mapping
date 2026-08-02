@@ -1,0 +1,51 @@
+# Poster build environment — scripts/py/
+#
+# Builds figures/poster/*.png and the .pptx poster files.
+#
+# Python 3.12, run via uv without a persistent virtualenv:
+#
+# Run from the repository root:
+#
+#   uv run --python 3.12 --with-requirements environments/poster.txt \
+#       python scripts/py/build_poster_final.py
+#
+# PROVENANCE — read before trusting these pins.
+# Unlike analysis.txt, these versions were NOT read off a live interpreter.
+# The poster scripts ran through ephemeral `uv run --with ...` invocations that
+# left no environment behind, so the pins below were recovered from the uv
+# wheel cache. That cache reflects the most recent resolution rather than a
+# guaranteed record of the run that produced the submitted poster, so treat
+# them as a close reconstruction, not ground truth. They are internally
+# consistent and the poster rebuilds from them.
+#
+# Note the deliberate version skew against analysis.txt: the poster environment
+# resolved newer numpy/pandas/scipy/matplotlib than the analysis environment.
+# That is faithful to how the work was actually done. The poster only reads
+# finished result files, so the skew does not affect any number reported on it.
+
+# --- slide assembly (top-level imports) ---
+python-pptx==1.0.2
+Pillow==12.3.0
+
+# --- figure rendering ---
+matplotlib==3.11.1
+numpy==2.5.1
+pandas==3.0.5
+
+# --- imported lazily inside poster_figures.py, needed for fig3 and fig6 ---
+anndata==0.13.2
+scikit-learn==1.9.0
+scipy==1.18.0
+joblib==1.5.3
+adjustText==1.4.0
+
+# --- imported lazily inside make_footer_assets.py, needed for the QR code ---
+qrcode==8.2
+opencv-python-headless==5.0.0.93
+
+# NON-PYTHON DEPENDENCY
+# scripts/py/export_poster.ps1 converts .pptx to PDF and PNG through PowerPoint
+# COM automation. It requires Windows with Microsoft PowerPoint installed and
+# has no Python equivalent here. On another platform, export the .pptx manually
+# or via LibreOffice (`soffice --headless --convert-to pdf`), which will render
+# fonts and spacing slightly differently.

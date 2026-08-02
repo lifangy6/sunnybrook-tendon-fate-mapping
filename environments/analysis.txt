@@ -1,0 +1,64 @@
+# Analysis environment — scripts/ipynb/01..10
+#
+# These are the exact versions that produced every result, figure, and table in
+# this repository. Recovered from the interpreter the notebooks actually ran on
+# (Python 3.14.5); cross-checked against version banners printed in the notebook
+# outputs (CellRank 2.3.2, liana 0.1.9) and against the scikit-learn deprecation
+# warnings in notebooks 08 and 09, which are consistent with 1.8.0.
+#
+# Python 3.14.5
+#
+# Run from the repository root:
+#
+#   python -m venv .venv
+#   .venv\Scripts\activate            # Windows
+#   pip install -r environments/analysis.txt
+#
+# This file lists direct dependencies only, so it stays readable. For an exact
+# byte-for-byte rebuild including every transitive package, use
+# environments/analysis-lock.txt instead.
+#
+# The poster build (scripts/py/) and the pySCENIC step (scripts/sh/) run in
+# separate environments — see environments/README.md.
+
+# --- core single-cell stack ---
+scanpy==1.12.1
+anndata==0.12.16
+
+# Required by scanpy but never imported directly, so they are invisible to an
+# import scan. Omitting them breaks sc.tl.leiden and sc.tl.umap at runtime.
+leidenalg==0.11.0
+igraph==1.0.0
+umap-learn==0.5.12
+
+# --- stage 4: fate trajectory (notebooks 05, 05b) ---
+cellrank==2.3.2
+
+# --- stage 5: cell-cell communication (notebooks 06, 06b) ---
+liana==0.1.9
+
+# --- stages 7-9: feature selection, classifier, healing index ---
+scikit-learn==1.8.0
+xgboost==3.3.0
+Boruta==0.4.3
+joblib==1.5.3
+
+# --- numerics / dataframes ---
+numpy==2.4.6
+pandas==2.3.3
+scipy==1.16.3
+statsmodels==0.14.6
+numba==0.65.1
+
+# --- i/o ---
+h5py==3.16.0
+loompy==3.0.8
+
+# --- plotting and graphs ---
+matplotlib==3.10.9
+networkx==3.6.1
+
+# --- notebook runtime ---
+jupyterlab==4.5.7
+ipykernel==7.2.0
+session-info2==0.4.1
