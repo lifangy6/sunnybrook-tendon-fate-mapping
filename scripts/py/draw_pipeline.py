@@ -284,7 +284,7 @@ ax.legend(handles=handles, loc='lower center', bbox_to_anchor=(0.5, -0.008),
           ncol=5, fontsize=7.8, framealpha=1.0, edgecolor=GREY_L,
           handlelength=1.3, columnspacing=1.2, borderpad=0.6)
 
-fig.savefig(OUTPUT, dpi=300, bbox_inches='tight',
+fig.savefig(OUTPUT, dpi=600, bbox_inches='tight',
             facecolor='white', edgecolor='none', pad_inches=0.25)
 plt.close(fig)
 print(f'Saved: {OUTPUT}')
