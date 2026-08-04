@@ -1,19 +1,29 @@
-"""
-Run locally before transferring files to HPC.
-Exports TSPC + T-FAP cells from both datasets as loom files for pySCENIC input.
+"""Export TSPC + T-FAP cells from both datasets as loom files for pySCENIC input.
 
-Output files (transfer these to HPC after running):
+Step 2 of the pySCENIC pipeline and the only one that runs locally rather than on
+Alliance Canada: pySCENIC needs log-normalised counts, so cells are taken from
+`adata.raw` rather than the scaled `.X`.
+
+Inputs:
+  data/Harvey_scRNA-seq/harvey2019_processed.h5ad       (notebook 03)
+  data/Cherief_scRNA-seq/GSE244921_cluster8_sub.h5ad    (notebook 02, cell_type labels)
+  data/Cherief_scRNA-seq/GSE244921_processed.h5ad       (notebook 01, supplies .raw)
+
+Outputs (transfer these to the HPC after running):
   data/pyscenic/harvey_tspc_tfap.loom
   data/pyscenic/cherief_tspc_tfap.loom
 
-Transfer command (run from project root):
+Run:  python scripts/py/pyscenic_02_prepare_loom.py
+
+Then, from the project root:
   scp data/pyscenic/*.loom lifangy6@nibi.alliancecan.ca:/home/lifangy6/scratch/BINF6999/data/pyscenic/input/
+
+Next: pyscenic_03_grn.sh -> pyscenic_04_ctx.sh -> pyscenic_05_aucell.sh
 """
 
-import scanpy as sc
-import numpy as np
-import os
 from pathlib import Path
+
+import scanpy as sc
 
 # Paths relative to this script file — works regardless of working directory
 SCRIPT_DIR = Path(__file__).parent

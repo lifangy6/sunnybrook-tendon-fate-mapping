@@ -4,6 +4,17 @@
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=8
 #SBATCH --output=/home/lifangy6/scratch/BINF6999/scripts/harvey_download_%j.log
+#
+# Step 1 of 3 in obtaining the Harvey 2019 count matrix (Stage 2).
+# Downloads SRR9087252 (PRJNA506218 — uninjured adult mouse patellar tendon)
+# from the SRA and converts it to gzipped FASTQ.
+#
+# The fasterq-dump call here omits --include-technical, so it does NOT emit the
+# read carrying the 10x cell barcode + UMI. Run fasterq_harvey.sh afterwards to
+# redo the dump with that read included; Cell Ranger needs it.
+#
+# Usage: sbatch download_harvey.sh
+# Next:  fasterq_harvey.sh, then cellranger_harvey.sh
 
 module load sra-toolkit
 
