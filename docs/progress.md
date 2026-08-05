@@ -86,7 +86,9 @@ Harvey 2019 provides ground-truth TSPC/T-FAP labels for both pySCENIC input and 
 **Goal:** Identify transcription factor regulons enriched in TSPC vs. T-FAP in both datasets independently, then find cross-dataset consistent TFs.  
 **Scripts:** `scripts/sh/pyscenic_*.sh` (HPC), `scripts/ipynb/04_pyscenic_analysis.ipynb`
 
-Pipeline run on Alliance Canada HPC (NIBI): GRNBoost2 → cisTarget motif pruning → AUCell scoring. Produced **471 Harvey** and **417 Cherief** regulons. AUCell scores compared between TSPC and T-FAP by Wilcoxon test; cross-dataset direction filter retained only regulons with positive Wilcoxon score in both datasets.
+Pipeline run on Alliance Canada HPC (NIBI): GRNBoost2 → cisTarget motif pruning → AUCell scoring. Produced **153 Harvey** and **157 Cherief** regulons. AUCell scores compared between TSPC and T-FAP by Wilcoxon test; cross-dataset direction filter retained only regulons with positive Wilcoxon score in both datasets.
+
+**Correction (2026-08-05):** this line previously read "471 Harvey and 417 Cherief regulons". Those are the raw *line counts* of `harvey_regulons.csv` and `cherief_regulons.csv`, not regulon counts. The cisTarget output holds one row per TF × enriched-motif module (468 and 414 data rows, plus 3 header lines); a regulon is one TF, whose target set is the union across its motif rows, and that is what AUCell scores — 153 and 157 respectively, confirmed against `col_attrs/RegulonsAUC` in the AUCell looms. The wrong figure originated in a mislabelled `wc -l` in `pyscenic_04_ctx.sh` (since fixed). **No computed result is affected:** every notebook that extracts target genes (05, 07, 07b) already unions across motif rows correctly, so the 1,682 target genes, the 119-gene overlap, the per-TF driver counts, and the classifier panels are unchanged. The correction does change the denominator — 15 consistent T-FAP regulons out of ~153 screened, not 471. The same wrong figure remains in `docs/md/intermediate-reflection.md`, `storyboard_outline.md`, and `timeline.md`, which are left as dated records of what was believed at the time.
 
 **Result: 15 T-FAP regulons consistent across both datasets; 0 TSPC regulons.**
 
@@ -304,8 +306,8 @@ Saved models: `data/classifier/classifier_core_23.joblib`, `classifier_full_44.j
 | `data/Cherief_scRNA-seq/GSE244921_processed.h5ad` | Processed Cherief 2023 AnnData (22,615 cells) |
 | `data/Cherief_scRNA-seq/GSE244921_cluster8_sub.h5ad` | Cluster 8 sub-clustered AnnData (TSPC/T-FAP/Tenogenic-progenitor/Stromal) |
 | `data/Harvey_scRNA-seq/harvey2019_processed.h5ad` | Processed Harvey 2019 AnnData (4,069 cells) |
-| `data/pyscenic/harvey_aucell.loom` | pySCENIC AUCell output — Harvey (471 regulons) |
-| `data/pyscenic/cherief_aucell.loom` | pySCENIC AUCell output — Cherief (417 regulons) |
+| `data/pyscenic/harvey_aucell.loom` | pySCENIC AUCell output — Harvey (153 regulons) |
+| `data/pyscenic/cherief_aucell.loom` | pySCENIC AUCell output — Cherief (157 regulons) |
 | `data/pyscenic/shared_diff_regulons.csv` | 15 cross-dataset T-FAP regulons (consistent direction) |
 | `data/liana/liana_innervated.csv` | Full LIANA result — innervated (56,701 LR pairs) |
 | `data/liana/liana_denervated.csv` | Full LIANA result — denervated (57,233 LR pairs) |

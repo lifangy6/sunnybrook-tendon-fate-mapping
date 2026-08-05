@@ -158,7 +158,7 @@ chip(0.72, 13.72, 'sh', fc=BLUE)
 chip(1.32, 13.72, 'py', fc=BLUE)
 title(6.35, 13.72, 'pySCENIC  ·  Alliance Canada HPC', fs=9.8, color=BLUE)
 body(6.0, 13.50,
-     'GRNBoost2  →  cisTarget motif pruning  →  AUCell            471 Harvey / 417 Cherief regulons',
+     'GRNBoost2  →  cisTarget motif pruning  →  AUCell            153 Harvey / 157 Cherief regulons',
      fs=8.2)
 
 arrow(2.35, 12.87, 2.35, 12.42)

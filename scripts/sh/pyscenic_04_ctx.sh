@@ -49,5 +49,12 @@ pyscenic ctx \
     --cell_id_attribute obs_names
 
 echo "=== Done: $DATASET regulons ==="
-echo "Regulon count: $(wc -l < $OUTPUT)"
+# The cisTarget CSV holds one row per TF x enriched-motif module, preceded by 3
+# header lines — so its line count is NOT the regulon count. A regulon is one TF,
+# whose target set is the union across that TF's motif rows, and that is what
+# AUCell scores in the next step. Reporting `wc -l` here as "Regulon count" is
+# what put an inflated figure (471/417 instead of 153/157) into the project
+# write-ups; both quantities are now printed, each with an accurate label.
+echo "TF x motif modules: $(( $(wc -l < $OUTPUT) - 3 ))"
+echo "Regulons (unique TFs, = what AUCell will score): $(tail -n +4 $OUTPUT | cut -d, -f1 | sort -u | wc -l)"
 ls -lh $OUTPUT
