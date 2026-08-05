@@ -51,7 +51,7 @@ QC filters removed low-quality cells; 22,615 cells retained. Leiden clustering (
 
 ### 1c — Sub-clustering cluster 8: TSPC / T-FAP separation
 
-Higher-resolution Leiden (resolution sweep 0.8–1.5) restricted to cluster 8 resolved four sub-populations:
+Re-embedding the 3,900 cluster-8 cells on their own neighbour graph (re-using the full-object PCA) and clustering with Leiden at resolution 0.2 — chosen from a 0.2–1.0 sweep giving 4 / 6 / 10 / 12 / 17 sub-clusters — resolved four sub-populations:
 
 | Sub-cluster | Label | n cells | Key markers |
 |---|---|---|---|
@@ -61,6 +61,8 @@ Higher-resolution Leiden (resolution sweep 0.8–1.5) restricted to cluster 8 re
 | 3 | TSPC | 451 | Tppp3=1.76, Prg4 co-elevated; Sfrp2 near-absent |
 
 TSPC are **2.4× enriched in innervated**; T-FAP are **1.46× enriched in denervated** — consistent with the paper's claim that innervation supports regenerative progenitor expansion.
+
+**Correction (2026-08-05):** the method line above previously read "Higher-resolution Leiden (resolution sweep 0.8–1.5)". Both halves were wrong, per `scripts/ipynb/02_cherief2023_subcluster_tspc_tfap.ipynb`. The sweep was **0.2–1.0** and the resolution selected was **0.2** — *lower* than the 0.5 used to cluster the full object, not higher. What separates TSPC from T-FAP is re-computing the neighbour graph on the cluster-8 cells alone, which removes interference from other cell types; raising the resolution does the opposite, fragmenting the compartment into 10 (res 0.6), 12 (res 0.8) and 17 (res 1.0) groups. The old wording therefore described a procedure that could not have produced the four sub-populations tabulated here. Sub-population counts and every downstream result are unaffected — only the description was wrong.
 
 ![Sub-cluster marker gene overlays](../figures/Cherief_scRNA-seq/umap_sub8_gene_overlays.png)
 
