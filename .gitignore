@@ -22,10 +22,6 @@ docs/seminar/*.png
 # Miscellaneous folder
 misc/
 
-# Draft files
-BINF6999/drafts/
-BINF6999/final/
-
 # Cherief scRNA-seq large data
 data/Cherief_scRNA-seq/GSM7832064_Control/
 data/Cherief_scRNA-seq/GSM7832065_INMPP1/
