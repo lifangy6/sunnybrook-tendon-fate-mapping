@@ -1,8 +1,6 @@
 # A Mechanism-Informed Gene Signature for Regenerative vs. Fibrotic Tendon Healing
 
-MBINF research project (BINF6999, University of Guelph), with Sunnybrook Research Institute.
-
-Fangyi Li · Advisor: Dr. Wilder Scott (Sunnybrook Research Institute) · Co-advisor: Dr. Yan Yan (University of Guelph)
+*MBINF BINF6999 project by Fangyi Li, advised by Dr. Wilder Scott (Sunnybrook Research Institute) and Dr. Yan Yan (University of Guelph).*
 
 Single-cell RNA-seq analysis of mouse Achilles tendon healing, comparing innervated
 (regenerative) and denervated (fibrotic) injury at day 14. Regulon (pySCENIC), fate
